@@ -14,6 +14,6 @@ macro rule (Hello <word>!)
 
 int main(int ac, char **av)
 {
-	printf ("Hello Doe! ");
+	printf ("Hello Doe!");
 	return (0);
 }
