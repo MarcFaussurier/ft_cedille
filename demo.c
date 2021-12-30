@@ -9,10 +9,11 @@ macro int f(int x)
 
 macro rule (Hello <word>!)
 {
-	_(Hello John!)
+	_(Hello dear <word>.)
 }
 
 int main(int ac, char **av)
 {
+	printf ("Hello Doe! ");
 	return (0);
 }
