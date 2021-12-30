@@ -4,17 +4,16 @@
 #include "fcntl.h"
 #include "string.h"
 #include "ctype.h"
-#define EQ(X, Y)  !strcmp(X, Y)
 #define C_TOKENS "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r"
-
-# define DBG_TOKEN(X) { if (!isspace(X[0])) printf("--- %s\n", X); } 
-
 #ifndef TOKEN_HISTORY_MAX
 # define TOKEN_HISTORY_MAX 8096
 #endif
 #if TOKEN_HISTORY_MAX < 100
 # error "cc -DTOKEN_HISTORY_MAX=100 and not bellow plz"
 #endif
+#define EQ(X, Y)  !strcmp(X, Y)
+#define DBG_TOKEN(X) { if (!isspace(X[0])) printf("--- %s\n", X); } 
+
 
 static int 	is_ctoken(char c)
 {
