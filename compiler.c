@@ -53,6 +53,8 @@ int main(int ac, char **av)
 	int 	macro_pattern_end;
 	int 	macro_body_begin;
 	int 	macro_body_end;
+	int		macro_fn_begin;
+	int 	macro_fn_end;
 	int 	my;
 
 	if (ac < 2)
@@ -85,7 +87,6 @@ int main(int ac, char **av)
 	 	brace_level					= 0;
 		while ((token 				= get_next_token(fd, is_ctoken)))
 		{
-		//	printf("-t: %s\n", token);
 			token_len = strlen(token);
 			if (is_ctoken(token[token_len - 1]))
 			{
@@ -98,23 +99,18 @@ int main(int ac, char **av)
 					token[token_len - 1] = 0;
 					
 					is.split = 1;
-				//	printf("--splited %s -- %s\n", token, l);
 					goto parse_token;
 					split:
 					token = l;
 					goto parse_token;
 				}
 				else
-				{
-				//	printf("--onechar\n");
 					goto parse_token;
-				}	
 			}
 			else
 				goto parse_token;
 			continue;
 			parse_token:
-		//	printf("--- %s\n", token);
 			if (eq(token, "\\") && !is.escaped)
 				is.escaped	 		= 1;
 			if (eq(token, "\n") && !is.escaped)
@@ -144,9 +140,15 @@ int main(int ac, char **av)
 					printf ("- import\n");
 					import_begin = -1;
 				}
-				if (eq(token, "macro"))
+				else if (eq(token, "macro"))
+				{
+					macro_fn_begin = ty + 1;
+				}
+				else if (eq(token, "rule"))
 				{
 					macro_pattern_begin 	= -1;
+					macro_fn_begin = 0;
+					macro_fn_end = 0;
 				}
 				else if (eq(token, "main"))
 				{
@@ -204,28 +206,46 @@ int main(int ac, char **av)
 				else if (eq(token, "}"))
 				{
 					brace_level 		-= 1;
-					if (brace_level == 0 && macro_pattern_begin && macro_body_begin)
+					if (brace_level == 0)
 					{
-						macro_body_end 		= ty - 1;
-						printf("- macro\n\tpattern[begin=%i end=%i]\n\tbody[begin=%i end=%i]\n", macro_pattern_begin, macro_pattern_end, macro_body_begin, macro_body_end);
-						my = macro_pattern_begin;
-						printf("-- patern:\n");
-						while (my <= macro_pattern_end)
+						if (macro_fn_begin)
 						{
-							printf (" --- %s\n", token_history[my]);
-							my += 1;
-						}
-						macro_pattern_begin = 0;
-						macro_pattern_end = 0;
-						my = macro_body_begin;
-						printf("-- body:\n");
-						while (my <= macro_body_end)
+							macro_fn_end = ty ;
+
+							printf("-- macro fn:\n");
+							my = macro_fn_begin;
+							while (my < macro_fn_end)
+							{
+								printf (" --- %s\n", token_history[my]);
+								my += 1;
+							}
+							printf (" --- %s\n", token);
+							macro_fn_begin = 0;
+							macro_fn_end = 0;
+						}	
+						else if (macro_pattern_begin && macro_body_begin)
 						{
-							printf (" --- %s\n", token_history[my]);
-							my += 1;
+							macro_body_end 		= ty - 1;
+							printf("- macro\n\tpattern[begin=%i end=%i]\n\tbody[begin=%i end=%i]\n", macro_pattern_begin, macro_pattern_end, macro_body_begin, macro_body_end);
+							my = macro_pattern_begin;
+							printf("-- patern:\n");
+							while (my <= macro_pattern_end)
+							{
+								printf (" --- %s\n", token_history[my]);
+								my += 1;
+							}
+							macro_pattern_begin = 0;
+							macro_pattern_end = 0;
+							my = macro_body_begin;
+							printf("-- body:\n");
+							while (my <= macro_body_end)
+							{
+								printf (" --- %s\n", token_history[my]);
+								my += 1;
+							}
+							macro_body_begin = 0;
+							macro_body_end = 0;
 						}
-						macro_body_begin = 0;
-						macro_body_end = 0;
 					}
 				}
 				else if (import_begin == -1 && (bracket_level || is.quotes))

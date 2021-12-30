@@ -2,12 +2,15 @@
 #import <test>
 #import "test.c"
 
-macro (Hello <word>!)
+macro int f(int x)
+{
+	return (x);
+}
+
+macro rule (Hello <word>!)
 {
 	_(Hello John!)
 }
-
-# define foo #
 
 int main(int ac, char **av)
 {
