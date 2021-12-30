@@ -1,7 +1,7 @@
 - [X] parse C code 
-- [X] find macro, main and import syntax
-- [ ]	reccursive analysis in import tags
-- [ ]	copy only macro statement in compilers
+- [X] parse macro, main and import syntaxes
+- [ ]	reccursive analysis in import directives
+- [ ]	copy only macro definitions in a compiler
 - [ ]	copy non-macro in an output string
-- [ ] keep replacing output string using macro pattern 
-- [ ] add a flag to compile the generated source code using clang or gcc
+- [ ] keep replacing output string using macro definitions in the generated compiler
+- [ ] add a flag to compile the output string using clang or gcc
