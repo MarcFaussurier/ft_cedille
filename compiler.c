@@ -3,6 +3,7 @@
 #include "unistd.h"
 #include "fcntl.h"
 #include "string.h"
+#include "ctype.h"
 #define eq(X, Y)  !strcmp(X, Y)
 #define C_TOKENS "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r"
 
@@ -46,6 +47,8 @@ int main(int ac, char **av)
 	int 	brace_level;
 	int		import_begin;
 	int		import_end;
+	int		main_begin;
+	int		main_end;
 	int		macro_pattern_begin;
 	int 	macro_pattern_end;
 	int 	macro_body_begin;
@@ -112,67 +115,19 @@ int main(int ac, char **av)
 			continue;
 			parse_token:
 		//	printf("--- %s\n", token);
-			if (eq(token, "(") && !is.quotes && !is.quote)
-			{
-				parenthesis_level 	+= 1;
-				if (parenthesis_level == 1 && macro_pattern_begin == -1)
-					macro_pattern_begin = ty + 1;
-			}
-			else if (eq(token, ")") && !is.quotes && !is.quote)
-			{
-				parenthesis_level 	-= 1;
-				if (!parenthesis_level && macro_pattern_begin && !macro_body_begin)
-					macro_pattern_end = ty - 1;
-			}
-			else if (eq(token, "{") && !is.quotes && !is.quote)
-			{
-				brace_level 		+= 1;
-				if (brace_level == 1 && macro_pattern_begin && !macro_body_begin)
-				{
-					macro_body_begin 	= ty + 1;
-				}
-			}
-			else if (eq(token, "}") && !is.quotes && !is.quote)
-			{
-				brace_level 		-= 1;
-				if (brace_level == 0 && macro_pattern_begin && macro_body_begin)
-				{
-					macro_body_end 		= ty - 1;
-					printf(" - macro\n\tpattern[begin=%i end=%i]\n\tbody[begin=%i end=%i]\n", macro_pattern_begin, macro_pattern_end, macro_body_begin, macro_body_end);
-					my = macro_pattern_begin;
-					printf("-- patern:\n");
-					while (my <= macro_pattern_end)
-					{
-					printf (" - %s\n", token_history[my]);
-						my += 1;
-					}
-					macro_pattern_begin = 0;
-					macro_pattern_end = 0;
-					my = macro_body_begin;
-					printf("-- body:\n");
-					while (my <= macro_body_end)
-					{
-						printf (" - %s\n", token_history[my]);
-						my += 1;
-					}
-					macro_body_begin = 0;
-					macro_body_end = 0;
-				}
-			}
-			else if (eq(token, "[") && !is.quotes && !is.quote)
-				bracket_level 		+= 1;
-			else if (eq(token, "]") && !is.quotes && !is.quote)
-				bracket_level 		-= 1;
-			else if (eq(token, "\"") && !is.quotes && !is.quote)
-				is.quotes 			= 1;
-			else if (eq(token, "'") && !is.quotes && !is.quote)
-				is.quotes 			= 1;
-			else if (eq(token, "\\") && !is.escaped)
+			if (eq(token, "\\") && !is.escaped)
 				is.escaped	 		= 1;
-			else if (eq(token, "'") && !is.escaped && !is.quotes &&	is.quote)
-				is.quote 			= 0;
-			else if (eq(token, "\"") && !is.escaped && is.quotes && !is.quote)
-				is.quotes 			= 0;
+			if (eq(token, "\n") && !is.escaped)
+			{
+				is.comment 			= 0;
+				is.preprocessor 	= 0;
+				if (is.import)
+				{
+					import_end 		= ty - 1;
+					printf("import [begin=%i end=%i]\n", import_begin, import_end);
+					is.import 		= 0;
+				}
+			}
 			else if (eq(token, "/") && ty && eq(token_history[ty - 1], "/") &&
 					!is.quote && !is.quotes)
 				is.comment			= 1;
@@ -182,22 +137,111 @@ int main(int ac, char **av)
 			else if (eq(token, "*") && ty && eq(token_history[ty - 1], "/") &&
 					!is.quote && !is.quotes)
 				is.ml_comment		= 0;
-			else if (is.import && (bracket_level || is.quotes))
-				import_begin 		= ty;
-			else if (is.preprocessor && eq(token, "import"))
-				is.import 			= 1;
-			else if (eq(token, "macro") && !is.quote && !is.quotes && !is.comment && !is.ml_comment)	
-				macro_pattern_begin 	= -1;
-			else if (eq(token, "\n") && !is.escaped)
+			else if (!is.quotes && !is.quote && !is.comment && !is.ml_comment)
 			{
-				is.comment 			= 0;
-				is.preprocessor 	= 0;
-
-				if (is.import)
+				if (eq (token, "import"))
 				{
-					import_end 		= ty - 1;
-					printf("import [begin=%i end=%i]\n", import_begin, import_end);
-					is.import 		= 0;
+					printf ("- import\n");
+					import_begin = -1;
+				}
+				if (eq(token, "macro"))
+				{
+					macro_pattern_begin 	= -1;
+				}
+				else if (eq(token, "main"))
+				{
+					my = ty;
+					main_begin = my;
+				}
+				else if (eq(token, "["))
+					bracket_level 		+= 1;
+				else if (eq(token, "]"))
+					bracket_level 		-= 1;
+				else if (eq(token, "\""))
+				{
+					is.quotes 			= 1;
+					if (import_begin == -1)
+						import_begin = ty + 1;
+				}
+				else if (eq(token, "'"))
+					is.quote 			= 1;
+				else if (eq(token, "<"))
+				{
+					if (import_begin == -1)
+						import_begin = ty + 1;
+				}
+				else if (eq(token, ">"))
+				{
+					if (import_begin)
+					{
+						import_end = ty - 1;
+						printf("\t[begin=%i end=%i]\n", import_begin, import_end);
+						import_begin = 0;
+						import_end = 0;
+					}
+				}
+				else if (eq(token, "("))
+				{
+					parenthesis_level 	+= 1;
+
+					if (parenthesis_level == 1 && macro_pattern_begin == -1)
+						macro_pattern_begin = ty + 1;
+				}
+				else if (eq(token, ")"))
+				{
+					parenthesis_level 	-= 1;
+					if (!parenthesis_level && macro_pattern_begin && !macro_body_begin)
+						macro_pattern_end = ty - 1;
+				}
+				else if (eq(token, "{"))
+				{
+					brace_level 		+= 1;
+					if (brace_level == 1 && macro_pattern_begin && !macro_body_begin)
+					{
+						macro_body_begin 	= ty + 1;
+					}
+				}
+				else if (eq(token, "}"))
+				{
+					brace_level 		-= 1;
+					if (brace_level == 0 && macro_pattern_begin && macro_body_begin)
+					{
+						macro_body_end 		= ty - 1;
+						printf("- macro\n\tpattern[begin=%i end=%i]\n\tbody[begin=%i end=%i]\n", macro_pattern_begin, macro_pattern_end, macro_body_begin, macro_body_end);
+						my = macro_pattern_begin;
+						printf("-- patern:\n");
+						while (my <= macro_pattern_end)
+						{
+							printf (" --- %s\n", token_history[my]);
+							my += 1;
+						}
+						macro_pattern_begin = 0;
+						macro_pattern_end = 0;
+						my = macro_body_begin;
+						printf("-- body:\n");
+						while (my <= macro_body_end)
+						{
+							printf (" --- %s\n", token_history[my]);
+							my += 1;
+						}
+						macro_body_begin = 0;
+						macro_body_end = 0;
+					}
+				}
+				else if (import_begin == -1 && (bracket_level || is.quotes))
+					import_begin 		= ty;
+			}
+			else if (eq(token, "'") && !is.escaped && !is.quotes &&	is.quote)
+				is.quote 			= 0;
+			else if (eq(token, "\"") && !is.escaped && is.quotes && !is.quote)
+			{
+				is.quotes 			= 0;
+				if (import_begin)
+				{
+					import_end = ty - 1;
+					printf("\t[begin=%i end=%i]\n", import_begin, import_end);
+					import_begin = 0;
+					import_end = 0;
 				}
 			}
 			else if (!eq(token, "\\") && is.escaped)

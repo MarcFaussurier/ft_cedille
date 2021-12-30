@@ -1,4 +1,6 @@
 #import <ç.h>
+#import <test>
+#import "test.c"
 
 macro (Hello <word>!)
 {
