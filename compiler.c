@@ -276,11 +276,20 @@ int			main(int ac, char **av)
 				
 			}
 		}
-		while (ty--)
-		{
+		int z = 0;
 
-			token_history[ty] = 0;
-			free(token_history[ty]);
+		while (z < ty)
+		{
+			if (!isspace(token_history[z][0]))
+				printf("%i\t%s", z, token_history[z]);
+			else
+				printf("%i\t%s", z, " ");
+			if (z % 2)
+				printf("\n");
+			else
+				printf("\t\t");
+			free(token_history[z]);
+			z += 1;
 		}
 		close (fd);
 		i += 1;
