@@ -21,6 +21,38 @@ static int 	is_ctoken(char c)
 	return ((int)memchr(C_TOKENS, c, strlen_ctokens));
 }
 
+char *strscat(char **strs, int from, int to)
+{
+	int i;
+	int l;
+	int	x;
+	char *o;
+
+	
+	l = 0;
+	i = from;
+	while (i <= to)
+	{
+		l += strlen(strs[i]);
+		i += 1;
+	}
+	o = malloc(l + 1);
+	i = from;
+	l = 0;
+	while (i <= to)
+	{
+		x = 0;
+		while (strs[i][x])
+		{
+			o[l] = strs[i][x];
+			x += 1;
+			l += 1;
+		}
+		i += 1;
+	}
+	return (o);
+}
+
 static int	parse(char *path)
 {
 	int		fd;
@@ -29,6 +61,7 @@ static int	parse(char *path)
 	char	*token;
 	char	*l;
 	int		token_len;
+	char	*import_path;
 	struct	s_is
 	{
 		int	quotes:					1;
@@ -163,13 +196,9 @@ flush_import:
 					import_end = ty - 1;
 					printf("\t[begin=%i end=%i]\n", import_begin, import_end);
 					my = import_begin;
-					printf("\t[path=");
-					while (my <= import_end)
-					{
-						printf("%s", token_history[my]);
-						my += 1;
-					}
-					printf("]\n");
+					import_path = strscat(token_history, import_begin, import_end);
+					parse(import_path);
+					printf("\t[path=%s]\n", import_path);
 					import_begin = 0;
 					import_end = 0;
 				}
