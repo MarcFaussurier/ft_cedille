@@ -4,7 +4,7 @@
 #include "fcntl.h"
 #include "string.h"
 #include "ctype.h"
-#define C_TOKENS "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r"
+
 #ifndef TOKEN_HISTORY_MAX
 # define TOKEN_HISTORY_MAX 8096
 #endif
@@ -14,8 +14,17 @@
 #define EQ(X, Y)  !strcmp(X, Y)
 #define DBG_TOKEN(X) { if (!isspace(X[0])) printf("--- %s\n", X); } 
 #define ERROR(X, ...) { sprintf(error, X, __VA_ARGS__);\
-	printf("\033[1m%s:%i:%i: \033[31merror:\033[0m\033[1m%s\033[0m\n", path, line, col, error);\
+	printf("\033[1m%s:%i:%i: \033[31merror: \033[0m\033[1m%s\033[0m\n", path, line, col, error);\
 	errors += 1; }
+
+
+const char *C_TOKENS = "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r";
+
+size_t import_paths_count = 2;
+const char *import_paths[255] = {
+	"/usr/include",
+	"/usr/local/include",
+};
 
 static size_t 	strlen_ctokens;
 
@@ -200,6 +209,7 @@ parse_token:
 flush_import:
 				if (import_begin) 
 				{
+					// TODO: import using only import path 
 					import_end = ty - 1;
 					my = import_begin;
 					import_path = strscat(token_history, import_begin, import_end);
@@ -260,6 +270,7 @@ flush_import:
 			is.quote 			= 0;
 		else if (EQ(token, "\"") && !is.escaped && is.quotes && !is.quote)
 		{
+			// TODO: import using relative paths
 			is.quotes 			= 0;
 			goto flush_import;
 		}
@@ -292,6 +303,7 @@ int			main(int ac, char **av)
 
 	int		i;
 	int		r;
+	
 
 	if (ac < 2)
 	{
@@ -300,6 +312,7 @@ int			main(int ac, char **av)
 	}
 	strlen_ctokens = strlen(C_TOKENS);
 	i 								= 1;
+	// TODO: parse -I && -o flags
 	while (i < ac)
 	{
 		r = parse(av[i]);
