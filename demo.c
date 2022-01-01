@@ -6,7 +6,7 @@ macro int f(int x)
 {
 	return (x);
 }
-
+#import "test.c"
 macro rule (Hello <word>!)
 {
 	_(Hello dear <word>.)

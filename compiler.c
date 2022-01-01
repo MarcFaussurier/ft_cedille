@@ -150,7 +150,7 @@ static int	parse(char *path)
 parse_token:
 		if (EQ(token, "\\") && !is.escaped)
 			is.escaped	 		= 1;
-		if (EQ(token, "\n") && !is.escaped)
+		else if (EQ(token, "\n") && !is.escaped)
 		{
 			line += 1;
 			col = 0;
@@ -209,7 +209,7 @@ parse_token:
 flush_import:
 				if (import_begin) 
 				{
-					// TODO: import using only import path 
+					// TODO: import using only import path (no relative path) 
 					import_end = ty - 1;
 					my = import_begin;
 					import_path = strscat(token_history, import_begin, import_end);
@@ -276,11 +276,8 @@ flush_import:
 		}
 		else if (!EQ(token, "\\") && is.escaped)
 			is.escaped 			= 0;
-		goto no_error;
-
-no_error:
 		token_history[ty++] = token;
-		col += token_len;
+		col += strlen(token);
 		if (is.split)
 		{
 			is.split = 0;
