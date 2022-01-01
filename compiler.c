@@ -13,44 +13,25 @@
 #endif
 #define EQ(X, Y)  !strcmp(X, Y)
 #define DBG_TOKEN(X) { if (!isspace(X[0])) printf("--- %s\n", X); } 
-#define flush_import { \
-	if (import_begin) \
-	{\
-		import_end = ty - 1;\
-		printf("\t[begin=%i end=%i]\n", import_begin, import_end);\
-		my = import_begin;\
-		printf("\t[path=");\
-		while (my <= import_end)\
-		{\
-			printf("%s", token_history[my]);\
-			my += 1;\
-		}\
-		printf("]\n");\
-		import_begin = 0;\
-		import_end = 0;\
-	}\
-}
 
-
+static size_t strlen_ctokens;
 
 static int 	is_ctoken(char c)
 {
-	return ((int)memchr(C_TOKENS, c, strlen(C_TOKENS)));
+	return ((int)memchr(C_TOKENS, c, strlen_ctokens));
 }
 
-int			main(int ac, char **av)
+static int	parse(char *path)
 {
-
-	int		i;
-	int 	fd;
+	int		fd;
 	int		ty;
 	char	*token_history[TOKEN_HISTORY_MAX];
-	char 	*token;
+	char	*token;
 	char	*l;
 	int		token_len;
 	struct	s_is
 	{
-		int quotes:					1;
+		int	quotes:					1;
 		int quote:					1;
 		int	comment:				1;
 		int	ml_comment:				1;
@@ -76,221 +57,247 @@ int			main(int ac, char **av)
 	int 	macro_fn_end;
 	int 	my;
 
-	if (ac < 2)
-	{
-		printf ("Usage: %s <file1.c file2.c ...>\n", av[0]);
-		return (0);
-	}
-	i 								= 1;
-	while (i < ac)
-	{
-		printf ("opening: %s\n", av[i]);
-		fd 							= open(av[i], O_RDONLY);
-		if (fd < 0)
-		{
-			printf ("Error: unable to open file.\n");
-			return (1);
-		}
-		ty 							= 0;
-		is.import 					= 0;
-		is.quotes 					= 0;
-	 	is.quote 					= 0;
-		is.comment 					= 0;
-		is.ml_comment 				= 0;
-		is.escaped 					= 0;
-		is.preprocessor				= 0;
-	 	is.import					= 0;
-		is.split					= 0;
-		parenthesis_level 			= 0;
-	 	bracket_level				= 0;
-	 	brace_level					= 0;
-		while ((token 				= get_next_token(fd, is_ctoken)))
-		{
-			token_len = strlen(token);
-			if (is_ctoken(token[token_len - 1]))
-			{
-				if (token_len > 1)
-				{
 
-					l = malloc(2);
-					l[0] = token[token_len - 1];
-					l[1] = 0;
-					token[token_len - 1] = 0;
-					
-					is.split = 1;
-					goto parse_token;
-					split:
-					token = l;
-					goto parse_token;
-				}
-				else
-					goto parse_token;
+	printf ("opening: %s\n", path);
+	fd 							= open(path, O_RDONLY);
+	if (fd < 0)
+	{
+		printf ("Error: unable to open file.\n");
+		return (1);
+	}
+	ty 							= 0;
+	is.import 					= 0;
+	is.quotes 					= 0;
+	is.quote 					= 0;
+	is.comment 					= 0;
+	is.ml_comment 				= 0;
+	is.escaped 					= 0;
+	is.preprocessor				= 0;
+	is.import					= 0;
+	is.split					= 0;
+	parenthesis_level 			= 0;
+	bracket_level				= 0;
+	brace_level					= 0;
+	while ((token 				= get_next_token(fd, is_ctoken)))
+	{
+		token_len = strlen(token);
+		if (is_ctoken(token[token_len - 1]))
+		{
+			if (token_len > 1)
+			{
+
+				l = malloc(2);
+				l[0] = token[token_len - 1];
+				l[1] = 0;
+				token[token_len - 1] = 0;
+				is.split = 1;
+				goto parse_token;
 			}
 			else
 				goto parse_token;
-			continue;
-			parse_token:
-			if (EQ(token, "\\") && !is.escaped)
-				is.escaped	 		= 1;
-			if (EQ(token, "\n") && !is.escaped)
-			{
-				is.comment 			= 0;
-				is.preprocessor 	= 0;
-			}
-			else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "/") &&
-					!is.quote && !is.quotes)
-				is.comment			= 1;
-			else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "*") &&
-					!is.quote && !is.quotes)
-				is.ml_comment		= 1;
-			else if (EQ(token, "*") && ty && EQ(token_history[ty - 1], "/") &&
-					!is.quote && !is.quotes)
-				is.ml_comment		= 0;
-			else if (!is.quotes && !is.quote && !is.comment && !is.ml_comment)
-			{
-				if (EQ(token, "import"))
-				{
-					printf ("- import\n");
-					import_begin = -1;
-				}
-				else if (EQ(token, "macro"))
-				{
-					macro_fn_begin = ty + 1;
-				}
-				else if (EQ(token, "rule"))
-				{
-					macro_pattern_begin 	= -1;
-					macro_fn_begin = 0;
-					macro_fn_end = 0;
-				}
-				else if (EQ(token, "main"))
-				{
-					my = ty;
-					main_begin = my;
-				}
-				else if (EQ(token, "["))
-					bracket_level 		+= 1;
-				else if (EQ(token, "]"))
-					bracket_level 		-= 1;
-				else if (EQ(token, "\""))
-				{
-					is.quotes 			= 1;
-					if (import_begin == -1)
-						import_begin = ty + 1;
-				}
-				else if (EQ(token, "'"))
-					is.quote 			= 1;
-				else if (EQ(token, "<"))
-				{
-					if (import_begin == -1)
-						import_begin = ty + 1;
-				}
-				else if (EQ(token, ">"))
-				{
-					flush_import;
-				}
-				else if (EQ(token, "("))
-				{
-					parenthesis_level 	+= 1;
-
-					if (parenthesis_level == 1 && macro_pattern_begin == -1)
-						macro_pattern_begin = ty + 1;
-				}
-				else if (EQ(token, ")"))
-				{
-					parenthesis_level 	-= 1;
-					if (!parenthesis_level && macro_pattern_begin && !macro_body_begin)
-						macro_pattern_end = ty - 1;
-				}
-				else if (EQ(token, "{"))
-				{
-					brace_level 		+= 1;
-					if (brace_level == 1 && macro_pattern_begin && !macro_body_begin)
-					{
-						macro_body_begin 	= ty + 1;
-					}
-				}
-				else if (EQ(token, "}"))
-				{
-					brace_level 		-= 1;
-					if (brace_level == 0)
-					{
-						if (macro_fn_begin)
-						{
-							macro_fn_end = ty ;
-
-							printf("-- macro fn[begin=%i end=%i]\n", macro_fn_begin, macro_fn_end);
-							my = macro_fn_begin;
-							while (my < macro_fn_end)
-							{
-								DBG_TOKEN (token_history[my]);
-								my += 1;
-							}
-							DBG_TOKEN (token);
-							macro_fn_begin = 0;
-							macro_fn_end = 0;
-						}	
-						else if (macro_pattern_begin && macro_body_begin)
-						{
-							macro_body_end 		= ty - 1;
-							printf("- macro\n\tpattern[begin=%i end=%i]\n\tbody[begin=%i end=%i]\n", 
-									macro_pattern_begin, macro_pattern_end, macro_body_begin, macro_body_end);
-							my = macro_pattern_begin;
-							printf("-- patern:\n");
-							while (my <= macro_pattern_end)
-							{
-								printf (" --- %s\n", token_history[my]);
-								my += 1;
-							}
-							macro_pattern_begin = 0;
-							macro_pattern_end = 0;
-							my = macro_body_begin;
-							printf("-- body:\n");
-							while (my <= macro_body_end)
-							{
-								printf (" --- %s\n", token_history[my]);
-								my += 1;
-							}
-							macro_body_begin = 0;
-							macro_body_end = 0;
-						}
-					}
-				}
-				else if (import_begin == -1 && (bracket_level || is.quotes))
-					import_begin 		= ty;
-			}
-			else if (EQ(token, "'") && !is.escaped && !is.quotes &&	is.quote)
-				is.quote 			= 0;
-			else if (EQ(token, "\"") && !is.escaped && is.quotes && !is.quote)
-			{
-				is.quotes 			= 0;
-				flush_import;
-			}
-			else if (!EQ(token, "\\") && is.escaped)
-				is.escaped 			= 0;
-			token_history[ty++] = token;
-			if (is.split)
-			{
-				is.split = 0;
-				goto split;
-				
-			}
 		}
-		my = 0;
-		while (my < ty)
+		else
+			goto parse_token;
+		continue;
+parse_token:
+		if (EQ(token, "\\") && !is.escaped)
+			is.escaped	 		= 1;
+		if (EQ(token, "\n") && !is.escaped)
 		{
-			if (!isspace(token_history[my][0]))
-				printf("%i\t%s", my, token_history[my]);
-			else
-				printf("%i\t%s", my, " ");
-			if (my % 2)
-				printf("\n");
-			else
-				printf("\t\t");
-			free(token_history[my]);
-			my += 1;
+			is.comment 			= 0;
+			is.preprocessor 	= 0;
 		}
-		close (fd);
+		else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "/") &&
+				!is.quote && !is.quotes)
+			is.comment			= 1;
+		else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "*") &&
+				!is.quote && !is.quotes)
+			is.ml_comment		= 1;
+		else if (EQ(token, "*") && ty && EQ(token_history[ty - 1], "/") &&
+				!is.quote && !is.quotes)
+			is.ml_comment		= 0;
+		else if (!is.quotes && !is.quote && !is.comment && !is.ml_comment)
+		{
+			if (EQ(token, "import"))
+			{
+				printf ("- import\n");
+				import_begin = -1;
+			}
+			else if (EQ(token, "macro"))
+			{
+				macro_fn_begin = ty + 1;
+			}
+			else if (EQ(token, "rule"))
+			{
+				macro_pattern_begin 	= -1;
+				macro_fn_begin = 0;
+				macro_fn_end = 0;
+			}
+			else if (EQ(token, "main"))
+			{
+				my = ty;
+				main_begin = my;
+			}
+			else if (EQ(token, "["))
+				bracket_level 		+= 1;
+			else if (EQ(token, "]"))
+				bracket_level 		-= 1;
+			else if (EQ(token, "\""))
+			{
+				is.quotes 			= 1;
+				if (import_begin == -1)
+					import_begin = ty + 1;
+			}
+			else if (EQ(token, "'"))
+				is.quote 			= 1;
+			else if (EQ(token, "<"))
+			{
+				if (import_begin == -1)
+					import_begin = ty + 1;
+			}
+			else if (EQ(token, ">"))
+			{
+flush_import:
+				if (import_begin) 
+				{
+					import_end = ty - 1;
+					printf("\t[begin=%i end=%i]\n", import_begin, import_end);
+					my = import_begin;
+					printf("\t[path=");
+					while (my <= import_end)
+					{
+						printf("%s", token_history[my]);
+						my += 1;
+					}
+					printf("]\n");
+					import_begin = 0;
+					import_end = 0;
+				}
+			}
+			else if (EQ(token, "("))
+			{
+				parenthesis_level 	+= 1;
+
+				if (parenthesis_level == 1 && macro_pattern_begin == -1)
+					macro_pattern_begin = ty + 1;
+			}
+			else if (EQ(token, ")"))
+			{
+				parenthesis_level 	-= 1;
+				if (!parenthesis_level && macro_pattern_begin && !macro_body_begin)
+					macro_pattern_end = ty - 1;
+			}
+			else if (EQ(token, "{"))
+			{
+				brace_level 		+= 1;
+				if (brace_level == 1 && macro_pattern_begin && !macro_body_begin)
+				{
+					macro_body_begin 	= ty + 1;
+				}
+			}
+			else if (EQ(token, "}"))
+			{
+				brace_level 		-= 1;
+				if (brace_level == 0)
+				{
+					if (macro_fn_begin)
+					{
+						macro_fn_end = ty ;
+
+						printf("-- macro fn[begin=%i end=%i]\n", macro_fn_begin, macro_fn_end);
+						my = macro_fn_begin;
+						while (my < macro_fn_end)
+						{
+							DBG_TOKEN (token_history[my]);
+							my += 1;
+						}
+						DBG_TOKEN (token);
+						macro_fn_begin = 0;
+						macro_fn_end = 0;
+					}	
+					else if (macro_pattern_begin && macro_body_begin)
+					{
+						macro_body_end 		= ty - 1;
+						printf("- macro\n\tpattern[begin=%i end=%i]\n\tbody[begin=%i end=%i]\n", 
+								macro_pattern_begin, macro_pattern_end, macro_body_begin, macro_body_end);
+						my = macro_pattern_begin;
+						printf("-- patern:\n");
+						while (my <= macro_pattern_end)
+						{
+							printf (" --- %s\n", token_history[my]);
+							my += 1;
+						}
+						macro_pattern_begin = 0;
+						macro_pattern_end = 0;
+						my = macro_body_begin;
+						printf("-- body:\n");
+						while (my <= macro_body_end)
+						{
+							printf (" --- %s\n", token_history[my]);
+							my += 1;
+						}
+						macro_body_begin = 0;
+						macro_body_end = 0;
+					}
+				}
+			}
+			else if (import_begin == -1 && (bracket_level || is.quotes))
+				import_begin 		= ty;
+		}
+		else if (EQ(token, "'") && !is.escaped && !is.quotes &&	is.quote)
+			is.quote 			= 0;
+		else if (EQ(token, "\"") && !is.escaped && is.quotes && !is.quote)
+		{
+			is.quotes 			= 0;
+			goto flush_import;
+		}
+		else if (!EQ(token, "\\") && is.escaped)
+			is.escaped 			= 0;
+		token_history[ty++] = token;
+		if (is.split)
+		{
+			is.split = 0;
+			token = l;
+			goto parse_token;
+		}
+	}
+	my = 0;
+	while (my < ty)
+	{
+		if (!isspace(token_history[my][0]))
+			printf("%i\t%s", my, token_history[my]);
+		else
+			printf("%i\t%s", my, " ");
+		if (my % 2)
+			printf("\n");
+		else
+			printf("\t\t");
+		free(token_history[my]);
+		my += 1;
+	}
+	close (fd);
+	return (0);
+}
+
+int			main(int ac, char **av)
+{
+
+	int		i;
+	int		r;
+
+	if (ac < 2)
+	{
+		printf ("Usage: %s <file1.c file2.c ...>\n", av[0]);
+		return (1);
+	}
+	strlen_ctokens = strlen(C_TOKENS);
+	i 								= 1;
+	while (i < ac)
+	{
+		r = parse(av[i]);
+		if (r)
+			return (r);
 		i += 1;
 	}
+	return (0);
 }
