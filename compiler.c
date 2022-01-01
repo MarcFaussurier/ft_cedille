@@ -16,12 +16,15 @@
 #define ERROR(X, ...) { sprintf(error, X, __VA_ARGS__);\
 	printf("\033[1m%s:%i:%i: \033[31merror: \033[0m\033[1m%s\033[0m\n", path, line, col, error);\
 	errors += 1; }
-
+#define CMD_ERROR(X, ...) {\
+	sprintf(error, X, __VA_ARGS__);\
+	printf("ç: \033[1m\033[31merror: \033[0m%s\n", error);\
+	errors += 1; }
 
 const char *C_TOKENS = "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r";
 
 int import_paths_count = 2;
-const char *import_paths[255] = {
+char import_paths[255][255] = {
 	"/usr/include",
 	"/usr/local/include",
 };
@@ -300,25 +303,53 @@ int			main(int ac, char **av)
 
 	int		i;
 	int		r;
-	
+	int		q;
+	int		errors;
+	char	error[255];
 
 	if (ac < 2)
 	{
 		printf ("Usage: %s <file1.c file2.c ...>\n", av[0]);
 		return (1);
 	}
+	errors = 0;
 	strlen_ctokens = strlen(C_TOKENS);
 	i 								= 1;
 	// TODO: parse -I && -o flags
 	while (i < ac)
 	{
+		if (av[i][0] == '-')
+		{
+			if (av[i][1] == 'I')
+			{
+				q = 2;
+				while (av[i][q])
+				{
+					import_paths[import_paths_count][q - 2] = av[i][q];
+					q += 1;
+				}
+				printf("Added import path: %s\n", import_paths[import_paths_count]);
+				import_paths_count += 1;
+
+			}
+			else if (av[i][1] == 'o' && !av[i][2])
+			{
+
+			}
+			else
+			{
+				CMD_ERROR("unknown argument: '%s'", av[i]);
+			}
+			i += 1;
+			continue ;
+		}
 		r = parse(av[i]);
 		if (r == 4242)
 		{
-			printf("Error: unable to open: '%s'\n", av[i]);
-			return (r);
+			// TODO: get relative folder of file for double quotes includes
+			CMD_ERROR("no such file or directory: '%s'", av[i]);
 		}
 		i += 1;
 	}
-	return (0);
+	return (errors);
 }
