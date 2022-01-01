@@ -20,13 +20,13 @@
 
 const char *C_TOKENS = "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r";
 
-size_t import_paths_count = 2;
+int import_paths_count = 2;
 const char *import_paths[255] = {
 	"/usr/include",
 	"/usr/local/include",
 };
 
-static size_t 	strlen_ctokens;
+static int 	strlen_ctokens;
 
 static int 		is_ctoken(char c)
 {
