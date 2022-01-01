@@ -13,13 +13,17 @@
 #endif
 #define EQ(X, Y)  !strcmp(X, Y)
 #define DBG_TOKEN(X) { if (!isspace(X[0])) printf("--- %s\n", X); } 
+#define ERROR(X, ...) { sprintf(error, X, __VA_ARGS__);\
+	printf("\033[1m%s:%i:%i: \033[31merror:\033[0m\033[1m%s\033[0m\n", path, line, col, error);\
+	errors += 1; }
 
-static size_t strlen_ctokens;
+static size_t 	strlen_ctokens;
 
-static int 	is_ctoken(char c)
+static int 		is_ctoken(char c)
 {
 	return ((int)memchr(C_TOKENS, c, strlen_ctokens));
 }
+
 
 char *strscat(char **strs, int from, int to)
 {
@@ -89,15 +93,17 @@ static int	parse(char *path)
 	int		macro_fn_begin;
 	int 	macro_fn_end;
 	int 	my;
+	int		line;
+	int		col;
+	int		errors;
+	char	error[2048];
 
-
-	printf ("opening: %s\n", path);
 	fd 							= open(path, O_RDONLY);
 	if (fd < 0)
-	{
-		printf ("Error: unable to open file.\n");
-		return (1);
-	}
+		return (4242);
+	errors						= 0;
+	line 						= 1;
+	col 						= 1;
 	ty 							= 0;
 	is.import 					= 0;
 	is.quotes 					= 0;
@@ -137,6 +143,8 @@ parse_token:
 			is.escaped	 		= 1;
 		if (EQ(token, "\n") && !is.escaped)
 		{
+			line += 1;
+			col = 0;
 			is.comment 			= 0;
 			is.preprocessor 	= 0;
 		}
@@ -153,7 +161,6 @@ parse_token:
 		{
 			if (EQ(token, "import"))
 			{
-				printf ("- import\n");
 				import_begin = -1;
 			}
 			else if (EQ(token, "macro"))
@@ -194,11 +201,12 @@ flush_import:
 				if (import_begin) 
 				{
 					import_end = ty - 1;
-					printf("\t[begin=%i end=%i]\n", import_begin, import_end);
 					my = import_begin;
 					import_path = strscat(token_history, import_begin, import_end);
-					parse(import_path);
-					printf("\t[path=%s]\n", import_path);
+					if (parse(import_path))
+					{
+						ERROR("'%s' file not found", import_path);
+					}
 					import_begin = 0;
 					import_end = 0;
 				}
@@ -232,39 +240,14 @@ flush_import:
 					if (macro_fn_begin)
 					{
 						macro_fn_end = ty ;
-
-						printf("-- macro fn[begin=%i end=%i]\n", macro_fn_begin, macro_fn_end);
-						my = macro_fn_begin;
-						while (my < macro_fn_end)
-						{
-							DBG_TOKEN (token_history[my]);
-							my += 1;
-						}
-						DBG_TOKEN (token);
 						macro_fn_begin = 0;
 						macro_fn_end = 0;
 					}	
 					else if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= ty - 1;
-						printf("- macro\n\tpattern[begin=%i end=%i]\n\tbody[begin=%i end=%i]\n", 
-								macro_pattern_begin, macro_pattern_end, macro_body_begin, macro_body_end);
-						my = macro_pattern_begin;
-						printf("-- patern:\n");
-						while (my <= macro_pattern_end)
-						{
-							printf (" --- %s\n", token_history[my]);
-							my += 1;
-						}
 						macro_pattern_begin = 0;
 						macro_pattern_end = 0;
-						my = macro_body_begin;
-						printf("-- body:\n");
-						while (my <= macro_body_end)
-						{
-							printf (" --- %s\n", token_history[my]);
-							my += 1;
-						}
 						macro_body_begin = 0;
 						macro_body_end = 0;
 					}
@@ -282,7 +265,11 @@ flush_import:
 		}
 		else if (!EQ(token, "\\") && is.escaped)
 			is.escaped 			= 0;
+		goto no_error;
+
+no_error:
 		token_history[ty++] = token;
+		col += token_len;
 		if (is.split)
 		{
 			is.split = 0;
@@ -293,19 +280,11 @@ flush_import:
 	my = 0;
 	while (my < ty)
 	{
-		if (!isspace(token_history[my][0]))
-			printf("%i\t%s", my, token_history[my]);
-		else
-			printf("%i\t%s", my, " ");
-		if (my % 2)
-			printf("\n");
-		else
-			printf("\t\t");
 		free(token_history[my]);
 		my += 1;
 	}
 	close (fd);
-	return (0);
+	return (errors);
 }
 
 int			main(int ac, char **av)
@@ -324,8 +303,11 @@ int			main(int ac, char **av)
 	while (i < ac)
 	{
 		r = parse(av[i]);
-		if (r)
+		if (r == 4242)
+		{
+			printf("Error: unable to open: '%s'\n", av[i]);
 			return (r);
+		}
 		i += 1;
 	}
 	return (0);
