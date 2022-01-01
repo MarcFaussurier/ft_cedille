@@ -1,3 +1,4 @@
+- [X] spec https://github.com/MarcFaussurier/ft_cedille_spec 
 - [X] parse C code 
 - [X] parse macro, main and import syntaxes
 - [ ] reccursive analysis in import directives
