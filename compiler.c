@@ -13,6 +13,24 @@
 #endif
 #define EQ(X, Y)  !strcmp(X, Y)
 #define DBG_TOKEN(X) { if (!isspace(X[0])) printf("--- %s\n", X); } 
+#define flush_import { \
+	if (import_begin) \
+	{\
+		import_end = ty - 1;\
+		printf("\t[begin=%i end=%i]\n", import_begin, import_end);\
+		my = import_begin;\
+		printf("\t[path=");\
+		while (my <= import_end)\
+		{\
+			printf("%s", token_history[my]);\
+			my += 1;\
+		}\
+		printf("]\n");\
+		import_begin = 0;\
+		import_end = 0;\
+	}\
+}
+
 
 
 static int 	is_ctoken(char c)
@@ -118,12 +136,6 @@ int			main(int ac, char **av)
 			{
 				is.comment 			= 0;
 				is.preprocessor 	= 0;
-				if (is.import)
-				{
-					import_end 		= ty - 1;
-					printf("import [begin=%i end=%i]\n", import_begin, import_end);
-					is.import 		= 0;
-				}
 			}
 			else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "/") &&
 					!is.quote && !is.quotes)
@@ -175,13 +187,7 @@ int			main(int ac, char **av)
 				}
 				else if (EQ(token, ">"))
 				{
-					if (import_begin)
-					{
-						import_end = ty - 1;
-						printf("\t[begin=%i end=%i]\n", import_begin, import_end);
-						import_begin = 0;
-						import_end = 0;
-					}
+					flush_import;
 				}
 				else if (EQ(token, "("))
 				{
@@ -258,13 +264,7 @@ int			main(int ac, char **av)
 			else if (EQ(token, "\"") && !is.escaped && is.quotes && !is.quote)
 			{
 				is.quotes 			= 0;
-				if (import_begin)
-				{
-					import_end = ty - 1;
-					printf("\t[begin=%i end=%i]\n", import_begin, import_end);
-					import_begin = 0;
-					import_end = 0;
-				}
+				flush_import;
 			}
 			else if (!EQ(token, "\\") && is.escaped)
 				is.escaped 			= 0;
@@ -276,20 +276,19 @@ int			main(int ac, char **av)
 				
 			}
 		}
-		int z = 0;
-
-		while (z < ty)
+		my = 0;
+		while (my < ty)
 		{
-			if (!isspace(token_history[z][0]))
-				printf("%i\t%s", z, token_history[z]);
+			if (!isspace(token_history[my][0]))
+				printf("%i\t%s", my, token_history[my]);
 			else
-				printf("%i\t%s", z, " ");
-			if (z % 2)
+				printf("%i\t%s", my, " ");
+			if (my % 2)
 				printf("\n");
 			else
 				printf("\t\t");
-			free(token_history[z]);
-			z += 1;
+			free(token_history[my]);
+			my += 1;
 		}
 		close (fd);
 		i += 1;
