@@ -9,7 +9,7 @@ macro int f(int x)
 #import "test.c"
 macro rule (Hello <word>!)
 {
-	_(Hello dear <word>.)
+	return(cat("Hello dear ", word));
 }
 
 int main(int ac, char **av)

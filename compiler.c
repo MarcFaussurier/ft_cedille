@@ -44,7 +44,7 @@ char *strscat(char **strs, int from, int to)
 	int	x;
 	char *o;
 
-	
+	printf("strscat[from=%i, to=%i]\n");	
 	l = 0;
 	i = from;
 	while (i <= to)
@@ -132,6 +132,7 @@ static int	parse(char *path)
 	while ((token 				= get_next_token(fd, is_ctoken)))
 	{
 		token_len = strlen(token);
+
 		if (is_ctoken(token[token_len - 1]))
 		{
 			if (token_len > 1)
@@ -151,6 +152,8 @@ static int	parse(char *path)
 			goto parse_token;
 		continue;
 parse_token:
+		token_history[ty] = token;
+		col += token_len;
 		if (EQ(token, "\\") && !is.escaped)
 			is.escaped	 		= 1;
 		else if (EQ(token, "\n") && !is.escaped)
@@ -215,7 +218,8 @@ flush_import:
 					// TODO: import using only import path (no relative path) 
 					import_end = ty - 1;
 					my = import_begin;
-					import_path = strscat(token_history, import_begin, import_end);
+					import_path = 
+						strscat(token_history, import_begin, import_end);
 					if (parse(import_path))
 					{
 						ERROR("'%s' file not found", import_path);
@@ -252,13 +256,33 @@ flush_import:
 				{
 					if (macro_fn_begin)
 					{
-						macro_fn_end = ty ;
+						macro_fn_end = ty;
+						
+						printf("Macro fn found!\n");
+				
+						char *s = strscat(token_history, 
+									macro_fn_begin, macro_fn_end);
+
+						printf("[%s]\n", s);
+
 						macro_fn_begin = 0;
 						macro_fn_end = 0;
 					}	
 					else if (macro_pattern_begin && macro_body_begin)
 					{
-						macro_body_end 		= ty - 1;
+						macro_body_end 		= ty - 2;
+						
+						printf("Macro pattern found!\n");
+
+						char *s0 = strscat(token_history, 
+									macro_pattern_begin, macro_pattern_end);
+
+						printf("[%s", s0);
+
+						char *s = strscat(token_history, 
+									macro_body_begin, macro_body_end);
+
+						printf("%s}]\n", s);
 						macro_pattern_begin = 0;
 						macro_pattern_end = 0;
 						macro_body_begin = 0;
@@ -279,8 +303,7 @@ flush_import:
 		}
 		else if (!EQ(token, "\\") && is.escaped)
 			is.escaped 			= 0;
-		token_history[ty++] = token;
-		col += strlen(token);
+		ty += 1;
 		if (is.split)
 		{
 			is.split = 0;
