@@ -12,37 +12,41 @@
 # error "cc -DTOKEN_HISTORY_MAX=100 and not bellow plz"
 #endif
 #define EQ(X, Y)  !strcmp(X, Y)
-#define DBG_TOKEN(X) { if (!isspace(X[0])) printf("--- %s\n", X); } 
-#define ERROR(X, ...) { sprintf(error, X, __VA_ARGS__);\
-	printf("\033[1m%s:%i:%i: \033[31merror: \033[0m\033[1m%s\033[0m\n", path, line, col, error);\
-	errors += 1; }
-#define CMD_ERROR(X, ...) {\
-	sprintf(error, X, __VA_ARGS__);\
+#define DBG_TOKEN(X) 					\
+{										\
+	if (!isspace(X[0])) 				\
+		printf("--- %s\n", X); 			\
+} 
+#define ERROR(X, ...) 					\
+{ 										\
+	sprintf(error, X, __VA_ARGS__);		\
+	printf("\033[1m%s:%i:%i: \033[31merror: \033[0m\033[1m%s\033[0m\n",\
+			path, line, col, error);	\
+	errors += 1; 						\
+}
+#define CMD_ERROR(X, ...)				\
+{				\
+	sprintf(error, X, __VA_ARGS__);		\
 	printf("ç: \033[1m\033[31merror: \033[0m%s\n", error);\
-	errors += 1; }
+	errors += 1; 						\
+}
 
-const char *default_output = "a.ç-compiler.c";
-const char *C_TOKENS = "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r";
-
-int import_paths_count = 2;
-char import_paths[255][255] = {
+const char 	*default_output = ".ç-compiler.c";
+const char 	*C_TOKENS = "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r";
+int 		import_paths_count = 2;
+char 		import_paths[255][255] = {
 	"/usr/include",
 	"/usr/local/include",
 };
+int 		sources_count = 0;
+char 		sources[255][255];
 
-int sources_count = 0;
-char sources[255][255] = {
-};
-
-static int 	strlen_ctokens;
-
-static int 		is_ctoken(char c)
+static int 	is_ctoken(char c)
 {
-	return ((int)memchr(C_TOKENS, c, strlen_ctokens));
+	return ((int)memchr(C_TOKENS, c, sizeof(C_TOKENS)));
 }
 
-
-char *strscat(char **strs, int from, int to)
+char 		*strscat(char **strs, int from, int to)
 {
 	int i;
 	int l;
@@ -159,13 +163,13 @@ parse_token:
 		token_history[ty] = token;
 		col += token_len;
 		if (EQ(token, "\\") && !is.escaped)
-			is.escaped	 		= 1;
+			is.escaped = 1;
 		else if (EQ(token, "\n") && !is.escaped)
 		{
 			line += 1;
 			col = 0;
-			is.comment 			= 0;
-			is.preprocessor 	= 0;
+			is.comment = 0;
+			is.preprocessor = 0;
 		}
 		else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "/") &&
 				!is.quote && !is.quotes)
@@ -188,7 +192,7 @@ parse_token:
 			}
 			else if (EQ(token, "rule"))
 			{
-				macro_pattern_begin 	= -1;
+				macro_pattern_begin = -1;
 				macro_fn_begin = 0;
 				macro_fn_end = 0;
 			}
@@ -328,23 +332,22 @@ flush_import:
 int			main(int ac, char **av)
 {
 
-	int		i;
-	int		r;
-	int		q;
-	int		errors;
-	char	error[255];
+	int			i;
+	int			p;
+	int			r;
+	int			q;
+	int			errors;
+	char		error[255];
 	const char	*output;
 
 	if (ac < 2)
 	{
-		printf ("Usage: %s <file1.c file2.c ...>\n", av[0]);
+		printf ("Usage: %s <file1.c file2.c ...>\n", ac == 1 ? av[0] : "ç");
 		return (1);
 	}
-	errors = 0;
-	strlen_ctokens = strlen(C_TOKENS);
-	i 								= 1;
-	output = default_output;
-	// TODO: parse -I && -o flags
+	errors 			= 0;
+	i 				= 1;
+	output 			= default_output;
 	while (i < ac)
 	{
 		if (av[i][0] == '-')
@@ -395,13 +398,13 @@ int			main(int ac, char **av)
 
 		i += 1;
 	}
-	printf("output to : %s\n", output);
-	int p = 0;
+	printf("output sufix\t: %s\n", output);
+	p = 0;
 	while (p < import_paths_count)
-		printf("includes[] : %s\n", import_paths[p++]);
+		printf("includes[]\t: %s\n", import_paths[p++]);
 	p = 0;
 	while (p < sources_count)
-		printf("sources[] : %s\n", sources[p++]);
+		printf("sources[]\t: %s\n", sources[p++]);
 	// for each sources ....
 	//		r = parse(av[i]);
 	//		if (r == 4242)
