@@ -464,6 +464,7 @@ int			main(int ac, char **av)
 		}
 		macro_patterns_count = 0;
 		macro_functions_count = 0;
+		references_count = 0;
 		p += 1;
 	}
 	return (errors);
