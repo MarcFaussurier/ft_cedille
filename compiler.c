@@ -30,20 +30,17 @@
 	printf("ç: \033[1m\033[31merror: \033[0m%s\n", error);\
 	errors += 1; 						\
 }
+#define c_tokens "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r"
+#define default_output ".ç-compiler.c"
 
-const char 	*default_output = ".ç-compiler.c";
-const char 	*C_TOKENS = "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r";
 int 		import_paths_count = 2;
-char 		import_paths[255][255] = {
-	"/usr/include",
-	"/usr/local/include",
-};
+char 		import_paths[255][255] = { "/usr/include", "/usr/local/include"};
 int 		sources_count = 0;
 char 		sources[255][255];
 
 static int 	is_ctoken(char c)
 {
-	return ((int)memchr(C_TOKENS, c, sizeof(C_TOKENS)));
+	return ((int)memchr(c_tokens, c, sizeof(c_tokens) / sizeof(char) - 1));
 }
 
 char 		*strscat(char **strs, int from, int to)
@@ -82,6 +79,7 @@ static int	parse(char *path)
 	int		fd;
 	int		ty;
 	char	*token_history[TOKEN_HISTORY_MAX];
+	char	buffer[255];
 	char	*token;
 	char	*l;
 	int		token_len;
@@ -116,6 +114,7 @@ static int	parse(char *path)
 	int		line;
 	int		col;
 	int		errors;
+	int		p;
 	char	error[2048];
 
 	fd 							= open(path, O_RDONLY);
@@ -160,6 +159,7 @@ static int	parse(char *path)
 			goto parse_token;
 		continue;
 parse_token:
+		printf("%i:\t%s\n", ty, token);
 		token_history[ty] = token;
 		col += token_len;
 		if (EQ(token, "\\") && !is.escaped)
@@ -223,17 +223,27 @@ parse_token:
 flush_import:
 				if (import_begin) 
 				{
-					// TODO: import using only import path (no relative path) 
 					import_end = ty - 1;
 					my = import_begin;
-					import_path = 
-						strscat(token_history, import_begin, import_end);
+					import_path = strscat
+					(
+					 	token_history, import_begin, import_end
+					);
 					if (parse(import_path))
 					{
 						ERROR("'%s' file not found", import_path);
 					}
 					import_begin = 0;
 					import_end = 0;
+					p = 0;
+					while (p < import_paths_count)
+					{
+						buffer[0] = 0;
+						sprintf(buffer, "%s/%s", import_paths[p], import_path);
+
+						printf("%s exists? %i\n", buffer, parse(buffer));
+						p += 1;
+					}
 				}
 			}
 			else if (EQ(token, "("))
@@ -416,8 +426,5 @@ int			main(int ac, char **av)
 		}
 		p += 1;
 	}
-	// for each sources ....
-
-
-			return (errors);
+	return (errors);
 }

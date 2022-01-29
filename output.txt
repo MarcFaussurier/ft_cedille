@@ -1,0 +1,290 @@
+cc -g compiler.c get_next_linev2/get_next_line.c get_next_linev2/get_next_line_utils.c &&  ./a.out demo.c
+output sufix	: .ç-compiler.c
+includes[]	: /usr/include
+includes[]	: /usr/local/include
+sources[]	: demo.c
+0:	#
+1:	import
+2:	 
+3:	<
+4:	ç
+5:	.
+6:	h
+7:	>
+0:	#
+1:	ifndef
+2:	 
+3:	FT_CEDILLE_H
+4:	
+
+5:	#
+6:	 
+7:	define
+8:	 
+9:	FT_CEDILLE_H
+10:	
+
+11:	
+
+12:	#
+13:	 
+14:	define
+15:	 
+16:	macro_3
+17:	 
+18:	void
+19:	 
+20:	macro3
+21:	(
+22:	char
+23:	 
+24:	*
+25:	word
+26:	)
+27:	
+
+28:	#
+29:	 
+30:	define
+31:	 
+32:	_
+33:	(
+34:	.
+35:	.
+36:	.
+37:	)
+38:	
+
+39:	
+
+40:	#
+41:	 
+42:	define
+43:	 
+44:	mcpy
+45:	(
+46:	x
+47:	,
+48:	 
+49:	y
+50:	)
+51:	 
+52:	x
+53:	#
+54:	#
+55:	y
+56:	
+
+57:	#
+58:	 
+59:	define
+60:	 
+61:	mcpy2
+62:	(
+63:	x
+64:	,
+65:	 
+66:	y
+67:	)
+68:	 
+69:	mcpy
+70:	(
+71:	x
+72:	,
+73:	 
+74:	y
+75:	)
+76:	
+
+77:	#
+78:	 
+79:	define
+80:	 
+81:	macro
+82:	(
+83:	.
+84:	.
+85:	.
+86:	)
+87:	 
+88:	mcpy2
+89:	(
+90:	macro_
+91:	,
+92:	 
+93:	__LINE__
+94:	)
+95:	
+
+96:	
+
+97:	#
+98:	endif
+99:	
+
+/usr/include/ç.h exists? 4242
+/usr/local/include/ç.h exists? 4242
+8:	
+
+9:	#
+10:	import
+11:	 
+12:	<
+13:	test
+14:	>
+[1mdemo.c:2:26: [31merror: [0m[1m'test' file not found[0m
+/usr/include/test exists? 4242
+/usr/local/include/test exists? 4242
+15:	
+
+16:	#
+17:	import
+18:	 
+19:	"
+20:	test
+21:	.
+22:	c
+23:	"
+[1mdemo.c:3:30: [31merror: [0m[1m'test.c' file not found[0m
+/usr/include/test.c exists? 4242
+/usr/local/include/test.c exists? 4242
+24:	
+
+25:	
+
+26:	macro
+27:	 
+28:	int
+29:	 
+30:	f
+31:	(
+32:	int
+33:	 
+34:	x
+35:	)
+36:	
+
+37:	{
+38:	
+
+39:		
+40:	return
+41:	 
+42:	(
+43:	x
+44:	)
+45:	;
+46:	
+
+47:	}
+Macro fn found!
+[ int f(int x)
+{
+	return (x);
+}]
+48:	
+
+49:	#
+50:	import
+51:	 
+52:	"
+53:	test
+54:	.
+55:	c
+56:	"
+[1mdemo.c:9:30: [31merror: [0m[1m'test.c' file not found[0m
+/usr/include/test.c exists? 4242
+/usr/local/include/test.c exists? 4242
+57:	
+
+58:	macro
+59:	 
+60:	rule
+61:	 
+62:	(
+63:	Hello
+64:	 
+65:	<
+66:	word
+67:	>
+68:	!
+69:	)
+70:	
+
+71:	{
+72:	
+
+73:		
+74:	return
+75:	(
+76:	cat
+77:	(
+78:	"
+79:	Hello
+80:	 
+81:	dear
+82:	 
+83:	"
+84:	,
+85:	 
+86:	word
+87:	)
+88:	)
+89:	;
+90:	
+
+91:	}
+Macro pattern found!
+[Hello <word>!
+	return(cat("Hello dear ", word));}]
+92:	
+
+93:	
+
+94:	int
+95:	 
+96:	main
+97:	(
+98:	int
+99:	 
+100:	ac
+101:	,
+102:	 
+103:	char
+104:	 
+105:	*
+106:	*
+107:	av
+108:	)
+109:	
+
+110:	{
+111:	
+
+112:		
+113:	printf
+114:	 
+115:	(
+116:	"
+117:	Hello
+118:	 
+119:	Doe
+120:	!
+121:	"
+122:	)
+123:	;
+124:	
+
+125:		
+126:	return
+127:	 
+128:	(
+129:	0
+130:	)
+131:	;
+132:	
+
+133:	}
+134:	
+
+file demo.c.ç-compiler.c generated!
