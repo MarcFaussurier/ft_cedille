@@ -7,7 +7,7 @@ macro int f(int x)
 	return (x);
 }
 #import "test.c"
-macro rule (Hello <word>!)
+macro rule (Hello <word dd><word tt><test f>!)
 {
 	return(cat("Hello dear ", word));
 }

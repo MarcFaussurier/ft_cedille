@@ -48,6 +48,13 @@ static int 	is_ctoken(char c)
 	return ((int)memchr(c_tokens, c, sizeof(c_tokens) / sizeof(char) - 1));
 }
 
+static int	is_name(char c)
+{
+	return 	(c >= 'a' && c <= 'z')
+		||	(c >= 'A' && c <= 'Z')
+		|| 	(c == '_')
+		||	(c >= '0' && c <= '9');
+}
 
 char		*ft_generate_macro_parser(int id, char *pattern)
 {
@@ -65,6 +72,7 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	int		p;
 	int		u;
 
+	printf("pattern=%s\n", pattern);
 	*out = 0;
 	strcat(out, "char *");
 	strcat(out, id);
@@ -78,23 +86,21 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 			i += 1;
 			printf("LABELL:%c\n", pattern[i]);
 			u = 0;
-			while (	(pattern[i] >= 'a' && pattern[i] <= 'z')
-				||	(pattern[i] >= 'A' && pattern[i] <= 'Z')
-				|| 	(pattern[i] == '_')
-				||	(pattern[i] >= '0' && pattern[i] <= '9'))
-
+			while (isspace(pattern[i]))
+				i += 1;
+			while (is_name(pattern[i]))
 				labels[label_count][u++] = pattern[i++];
 			printf("LABELL:%c %i\n", pattern[i], i);
-			//labels[label_count][i] = 0;
+			labels[label_count][u] = 0;
 			printf("LABEL: %s\n", labels[label_count]);
 			z = 0;
 			while (z < label_count)
 			{
-		//		if (z != label_count && !strcmp(labels[label_count], labels[z]))
-		//		{
-		//			label_count -= 1;
-		//			break ;
-		//		}
+				if (z != label_count && !strcmp(labels[label_count], labels[z]))
+				{
+					label_count -= 1;
+					break ;
+				}
 				z += 1;
 			}
 			label_count += 1;
@@ -419,7 +425,7 @@ flush_import:
 					else if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= ty - 1;
-						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 0);
+						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 1);
 						body = strscat(token_history, macro_body_begin, macro_body_end, 1);
 						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", pattern, body);
 						sprintf(macro_patterns[macro_patterns_count][0], "%s", pattern);
