@@ -41,13 +41,15 @@ int			macro_functions_count = 0;
 char		macro_functions[255][4096];
 int			macro_patterns_count = 0;
 char		macro_patterns[255][2][4096];
+int			references_count = 0;
+char		references[255][255];
 
 static int 	is_ctoken(char c)
 {
 	return ((int)memchr(c_tokens, c, sizeof(c_tokens) / sizeof(char) - 1));
 }
 
-char 		*strscat(char **strs, int from, int to)
+char 		*strscat(char **strs, int from, int to, int s)
 {
 	int i;
 	int l;
@@ -74,7 +76,7 @@ char 		*strscat(char **strs, int from, int to)
 			l += 1;
 		}
 		i += 1;
-		if (i < to)
+		if (s && i < to)
 			o[l++] = ' ';
 	}
 	o[l] = 0;
@@ -125,6 +127,18 @@ static int	parse(char *path)
 	int		r;
 	char	error[2048];
 
+	p = 0;
+	while (p < references_count)
+	{
+		if (!strcmp(references[p], path))
+		{
+			ERROR("File '%s' already included !\n", path);
+			return (0);
+		}
+		p += 1;
+	}
+	sprintf(references[references_count], "%s", path);
+	references_count += 1;
 	printf("__________\n");
 	printf ("parsing: %s\n", path);
 	fd 							= open(path, O_RDONLY);
@@ -246,7 +260,7 @@ flush_import:
 					import_end = ty - 1;
 					import_path = strscat
 					(
-					 	token_history, import_begin, import_end
+					 	token_history, import_begin, import_end, 0
 					);
 					import_begin = 0;
 					import_end = 0;
@@ -308,7 +322,7 @@ flush_import:
 					{
 						macro_fn_end = ty;
 						char *s = strscat(token_history, 
-									macro_fn_begin, macro_fn_end);
+									macro_fn_begin, macro_fn_end, 1);
 						printf("Macro fn[%s]\n", s);
 						macro_fn_begin = 0;
 						macro_fn_end = 0;
@@ -317,10 +331,10 @@ flush_import:
 					{
 						macro_body_end 		= ty - 1;
 						char *s0 = strscat(token_history, 
-									macro_pattern_begin, macro_pattern_end);
+									macro_pattern_begin, macro_pattern_end, 1);
 
 						char *s = strscat(token_history, 
-									macro_body_begin, macro_body_end);
+									macro_body_begin, macro_body_end, 1);
 						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", 
 								s0, s);
 						macro_pattern_begin = 0;
