@@ -115,8 +115,10 @@ static int	parse(char *path)
 	int		col;
 	int		errors;
 	int		p;
+	int		r;
 	char	error[2048];
 
+	printf ("parsing: %s\n", path);
 	fd 							= open(path, O_RDONLY);
 	if (fd < 0)
 		return (4242);
@@ -220,6 +222,7 @@ parse_token:
 			}
 			else if (EQ(token, ">"))
 			{
+				p = 0;
 flush_import:
 				if (import_begin) 
 				{
@@ -229,21 +232,37 @@ flush_import:
 					(
 					 	token_history, import_begin, import_end
 					);
-					if (parse(import_path))
-					{
-						ERROR("'%s' file not found", import_path);
-					}
 					import_begin = 0;
 					import_end = 0;
+					if (p)
+					{
+						if (parse(import_path))
+						{
+							printf("-- parse(%s) returned %i\n", buffer, r);
+						}
+						else
+						{
+							p = 0;
+							goto next;
+						}
+
+					}
 					p = 0;
 					while (p < import_paths_count)
 					{
 						buffer[0] = 0;
 						sprintf(buffer, "%s/%s", import_paths[p], import_path);
-
-						printf("%s exists? %i\n", buffer, parse(buffer));
+						r = parse(buffer);
+						if (!r)
+						{
+							p = 0;
+							goto next;
+						}
+						printf("-- parse(%s) returned %i\n", buffer, r);
 						p += 1;
 					}
+
+					ERROR("'%s' file not found", import_path);
 				}
 			}
 			else if (EQ(token, "("))
@@ -317,10 +336,12 @@ flush_import:
 		{
 			// TODO: import using relative paths
 			is.quotes 			= 0;
+			p = 1;
 			goto flush_import;
 		}
 		else if (!EQ(token, "\\") && is.escaped)
 			is.escaped 			= 0;
+next:
 		ty += 1;
 		if (is.split)
 		{
