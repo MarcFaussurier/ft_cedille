@@ -360,7 +360,6 @@ int			main(int ac, char **av)
 					import_paths[import_paths_count][q - 2] = av[i][q];
 					q += 1;
 				}
-				printf("Added import path: %s\n", import_paths[import_paths_count]);
 				import_paths_count += 1;
 
 			}
@@ -404,18 +403,21 @@ int			main(int ac, char **av)
 		printf("includes[]\t: %s\n", import_paths[p++]);
 	p = 0;
 	while (p < sources_count)
-		printf("sources[]\t: %s\n", sources[p++]);
+	{
+		printf("sources[]\t: %s\n", sources[p]);
+		r = parse(sources[p]);
+		if (r == 4242)
+		{
+			CMD_ERROR("no such file or directory: '%s'", sources[p]);
+		}
+		else
+		{	
+			printf("file %s%s generated!\n", sources[p], output);
+		}
+		p += 1;
+	}
 	// for each sources ....
-	//		r = parse(av[i]);
-	//		if (r == 4242)
-	//		{
-				// TODO: get relative folder of file for double quotes includes
-	//			CMD_ERROR("no such file or directory: '%s'", av[i]);
-	//		}
-//			else
-//			{
 
-//			}
 
 			return (errors);
 }
