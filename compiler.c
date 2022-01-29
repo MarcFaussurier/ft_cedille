@@ -61,7 +61,7 @@ char 		*strscat(char **strs, int from, int to)
 		l += strlen(strs[i]);
 		i += 1;
 	}
-	o = malloc(l + 1);
+	o = malloc(l * 2 + 1);
 	i = from;
 	l = 0;
 	while (i <= to)
@@ -74,7 +74,10 @@ char 		*strscat(char **strs, int from, int to)
 			l += 1;
 		}
 		i += 1;
+		if (i < to)
+			o[l++] = ' ';
 	}
+	o[l] = 0;
 	return (o);
 }
 
@@ -115,7 +118,6 @@ static int	parse(char *path)
 	int 	macro_body_end;
 	int		macro_fn_begin;
 	int 	macro_fn_end;
-	int 	my;
 	int		line;
 	int		col;
 	int		errors;
@@ -167,8 +169,17 @@ static int	parse(char *path)
 			goto parse_token;
 		continue;
 parse_token:
-		printf("%i:\t%s\n", ty, token);
-		token_history[ty] = token;
+		 if (!(!is.quotes && !is.quote && !is.comment && !is.ml_comment) 
+				 || !isspace(token[0]))
+		 {
+				printf("%i:\t%s\n", ty, token);
+			 	token_history[ty] = token;
+		 }
+		 else
+		 {
+			ty -= 1;
+			goto next;
+		 }
 		col += token_len;
 		if (EQ(token, "\\") && !is.escaped)
 			is.escaped = 1;
@@ -204,10 +215,10 @@ parse_token:
 				macro_fn_begin = 0;
 				macro_fn_end = 0;
 			}
-			else if (EQ(token, "main"))
+			else if (EQ(token, "main") && EQ(token_history[ty - 1], "int"))
 			{
-				my = ty;
-				main_begin = my;
+				main_begin = ty - 1;
+				printf("main begins at %i\n", main_begin);
 			}
 			else if (EQ(token, "["))
 				bracket_level 		+= 1;
@@ -233,24 +244,20 @@ flush_import:
 				if (import_begin) 
 				{
 					import_end = ty - 1;
-					my = import_begin;
 					import_path = strscat
 					(
 					 	token_history, import_begin, import_end
 					);
 					import_begin = 0;
 					import_end = 0;
-					if (p)
+					if (is.local_import)
 					{
 						if (parse(import_path))
 						{
 							printf("-- parse(%s) returned %i\n", buffer, r);
 						}
 						else
-						{
-							p = 0;
 							goto next;
-						}
 
 					}
 					p = 0;
@@ -308,13 +315,14 @@ flush_import:
 					}	
 					else if (macro_pattern_begin && macro_body_begin)
 					{
-						macro_body_end 		= ty - 2;
+						macro_body_end 		= ty - 1;
 						char *s0 = strscat(token_history, 
 									macro_pattern_begin, macro_pattern_end);
 
 						char *s = strscat(token_history, 
 									macro_body_begin, macro_body_end);
-						printf("Macro pattern[pattern='%s'\nbody='%s']\n", s0, s);
+						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", 
+								s0, s);
 						macro_pattern_begin = 0;
 						macro_pattern_end = 0;
 						macro_body_begin = 0;
@@ -344,11 +352,11 @@ next:
 			goto parse_token;
 		}
 	}
-	my = 0;
-	while (my < ty)
+	p = 0;
+	while (p < ty)
 	{
-		free(token_history[my]);
-		my += 1;
+		free(token_history[p]);
+		p += 1;
 	}
 	close (fd);
 	printf("__________\n");
