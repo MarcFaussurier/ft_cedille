@@ -63,6 +63,7 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	int 	label_count;
 	char	*out = malloc(8015);
 	int		p;
+	int		u;
 
 	*out = 0;
 	strcat(out, "char *");
@@ -74,26 +75,29 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	{
 		if (pattern[i] == '<')
 		{
-			while (isalpha(pattern[i]))
-			{
-				labels[label_count][i] = pattern[i];
-				i += 1;
-			}
-			labels[label_count][i] = 0;
+			i += 1;
+			printf("LABELL:%c\n", pattern[i]);
+			u = 0;
+			while (	(pattern[i] >= 'a' && pattern[i] <= 'z')
+				||	(pattern[i] >= 'A' && pattern[i] <= 'Z')
+				|| 	(pattern[i] == '_')
+				||	(pattern[i] >= '0' && pattern[i] <= '9'))
+
+				labels[label_count][u++] = pattern[i++];
+			printf("LABELL:%c %i\n", pattern[i], i);
+			//labels[label_count][i] = 0;
+			printf("LABEL: %s\n", labels[label_count]);
 			z = 0;
 			while (z < label_count)
 			{
-				if (z != label_count && !strcmp(labels[label_count], labels[z]))
-				{
-					label_count -= 1;
-					break ;
-				}
+		//		if (z != label_count && !strcmp(labels[label_count], labels[z]))
+		//		{
+		//			label_count -= 1;
+		//			break ;
+		//		}
 				z += 1;
 			}
 			label_count += 1;
-		}
-		else if (pattern[i] == '>')
-		{
 		}
 		i += 1;
 	}
@@ -475,6 +479,7 @@ next:
 		while (p < macro_patterns_count)
 		{
 			idz[0] = 0;
+			sprintf(idz, "macro_%i", p);
 			strcat(macros, ft_generate_macro_function
 					(idz, macro_patterns[p][0], macro_patterns[p][1]));
 			strcat(parser, macro_patterns[p][0]);
