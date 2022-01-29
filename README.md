@@ -9,10 +9,10 @@
 
 
 
-$./ç -I$importpath file.ç -o file.ç-compiler.c 
-$ cc file.ç-compiler.c -o file.ç-compiler
-$ ./file.ç-compiler file.ç -o file.swp
-$ if file exists file.swp2 and file.swp == file.swp2 or file.depth > depthmax
-	then stop, create a hash lock using $importpath and sources, 
-	and create file.c by deleteing macro defs from file.swp
-$ cc -I./ -c file.c -o file.o
+$ ./ç -I$importpath file.ç -o file.ç-compiler.c  <br>
+$ cc file.ç-compiler.c -o file.ç-compiler <br>
+$ ./file.ç-compiler file.ç -o file.swp <br>
+$ if file exists file.swp2 and file.swp == file.swp2 or file.depth > depthmax <br>
+	then stop, create a hash lock using $importpath and sources, <br>
+	and create file.c by deleteing macro defs from file.swp <br>
+$ cc -I./ -c file.c -o file.o 
