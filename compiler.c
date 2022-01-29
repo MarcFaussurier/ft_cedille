@@ -37,6 +37,10 @@ int 		import_paths_count = 2;
 char 		import_paths[255][255] = { "/usr/include", "/usr/local/include"};
 int 		sources_count = 0;
 char 		sources[255][255];
+int			macro_functions_count = 0;
+char		macro_functions[255][4096];
+int			macro_patterns_count = 0;
+char		macro_patterns[255][2][4096];
 
 static int 	is_ctoken(char c)
 {
@@ -96,6 +100,7 @@ static int	parse(char *path)
 		int macro_pattern:			1;
 		int macro_body:				1;
 		int split:					1;
+		int	local_import:			1;
 	}		is;
 	int 	parenthesis_level;
 	int 	bracket_level;
@@ -118,6 +123,7 @@ static int	parse(char *path)
 	int		r;
 	char	error[2048];
 
+	printf("__________\n");
 	printf ("parsing: %s\n", path);
 	fd 							= open(path, O_RDONLY);
 	if (fd < 0)
@@ -222,7 +228,7 @@ parse_token:
 			}
 			else if (EQ(token, ">"))
 			{
-				p = 0;
+				is.local_import = 0;
 flush_import:
 				if (import_begin) 
 				{
@@ -294,32 +300,21 @@ flush_import:
 					if (macro_fn_begin)
 					{
 						macro_fn_end = ty;
-						
-						printf("Macro fn found!\n");
-				
 						char *s = strscat(token_history, 
 									macro_fn_begin, macro_fn_end);
-
-						printf("[%s]\n", s);
-
+						printf("Macro fn[%s]\n", s);
 						macro_fn_begin = 0;
 						macro_fn_end = 0;
 					}	
 					else if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= ty - 2;
-						
-						printf("Macro pattern found!\n");
-
 						char *s0 = strscat(token_history, 
 									macro_pattern_begin, macro_pattern_end);
 
-						printf("[%s", s0);
-
 						char *s = strscat(token_history, 
 									macro_body_begin, macro_body_end);
-
-						printf("%s}]\n", s);
+						printf("Macro pattern[pattern='%s'\nbody='%s']\n", s0, s);
 						macro_pattern_begin = 0;
 						macro_pattern_end = 0;
 						macro_body_begin = 0;
@@ -328,15 +323,14 @@ flush_import:
 				}
 			}
 			else if (import_begin == -1 && (bracket_level || is.quotes))
-				import_begin 		= ty;
+				import_begin = ty;
 		}
 		else if (EQ(token, "'") && !is.escaped && !is.quotes &&	is.quote)
-			is.quote 			= 0;
+			is.quote = 0;
 		else if (EQ(token, "\"") && !is.escaped && is.quotes && !is.quote)
 		{
-			// TODO: import using relative paths
-			is.quotes 			= 0;
-			p = 1;
+			is.quotes = 0;
+			is.local_import = 1;
 			goto flush_import;
 		}
 		else if (!EQ(token, "\\") && is.escaped)
@@ -357,6 +351,7 @@ next:
 		my += 1;
 	}
 	close (fd);
+	printf("__________\n");
 	return (errors);
 }
 
@@ -445,6 +440,8 @@ int			main(int ac, char **av)
 		{	
 			printf("file %s%s generated!\n", sources[p], output);
 		}
+		macro_patterns_count = 0;
+		macro_functions_count = 0;
 		p += 1;
 	}
 	return (errors);
