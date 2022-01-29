@@ -486,7 +486,9 @@ next:
 			sprintf(idz, "macro_%i", p);
 			strcat(macros, ft_generate_macro_function
 					(idz, macro_patterns[p][0], macro_patterns[p][1]));
+			strcat(macros, "\n");
 			strcat(parser, macro_patterns[p][0]);
+			strcat(parser, "\n");
 			p += 1;
 		}
 		p = 0;
