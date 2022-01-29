@@ -32,7 +32,7 @@
 	errors += 1; 						\
 }
 #define c_tokens "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r"
-#define default_output ".ç-compiler.c"
+#define default_output "-compiler.c"
 
 int 		import_paths_count = 2;
 char 		import_paths[255][255] = { "/usr/include", "/usr/local/include"};
