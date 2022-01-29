@@ -56,9 +56,17 @@ static int	is_name(char c)
 		||	(c >= '0' && c <= '9');
 }
 
-char		*ft_generate_macro_parser(int id, char *pattern)
+char		*ft_generate_macro_parser(char *id, char *pattern)
 {
-	return (0);	
+	char	*out = malloc(8096);
+
+	strcat(out, "else if (");
+	strcat(out, pattern);
+	strcat(out, ")\n{");
+	strcat(out, id);
+	strcat(out, "()");
+	strcat(out, "}");
+	return (out);	
 }
 
 char		*ft_generate_macro_function(char *id, char *pattern, char *body)
@@ -68,7 +76,7 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	int		y;
 	char	labels[255][255];
 	int 	label_count;
-	char	*out = malloc(8015);
+	char	*out = malloc(8096);
 	int		p;
 	int		u;
 
@@ -156,9 +164,10 @@ char 		*strscat(char **strs, int from, int to, int s)
 	return (o);
 }
 
-static int	parse(char *path, int depth)
+static int	parse(char *path, int depth, char *output)
 {
 	int		fd;
+	int		outfd;
 	int		ty;
 	char	*token_history[TOKEN_HISTORY_MAX];
 	char	*full_token_history[TOKEN_HISTORY_MAX];
@@ -360,7 +369,7 @@ flush_import:
 					import_end = 0;
 					if (is.local_import)
 					{
-						if (parse(import_path, depth + 1))
+						if (parse(import_path, depth + 1, output))
 						{
 							printf("-- parse(%s) returned %i\n", buffer, r);
 						}
@@ -373,7 +382,7 @@ flush_import:
 					{
 						buffer[0] = 0;
 						sprintf(buffer, "%s/%s", import_paths[p], import_path);
-						r = parse(buffer, depth + 1);
+						r = parse(buffer, depth + 1, output);
 						if (!r)
 						{
 							p = 0;
@@ -455,7 +464,6 @@ flush_import:
 		else if (!EQ(token, "\\") && is.escaped)
 			is.escaped 			= 0;
 next:
-		printf("compiler_i: %i\n", compiler_i);
 		if (!depth && is.in_compiler)
 		{
 			if (is.in_compiler > 0)
@@ -487,7 +495,7 @@ next:
 			strcat(macros, ft_generate_macro_function
 					(idz, macro_patterns[p][0], macro_patterns[p][1]));
 			strcat(macros, "\n");
-			strcat(parser, macro_patterns[p][0]);
+			strcat(parser, ft_generate_macro_parser(idz, macro_patterns[p][0]));
 			strcat(parser, "\n");
 			p += 1;
 		}
@@ -498,22 +506,39 @@ next:
 			strcat(header, compiler[p]);
 			p += 1;
 		}
-		printf("__COMPILER__\n\
-#include <stdio.h>\n\
-#include \"get_next_linev2/get_next_line.h\" \n\
-\n\
-%s \n\
-\n\
-%s\n\
-\n\
-int main(int ac, char **av)\n\
-{\n\
-	%s\n\
-	\n\
-	return (0);\n\
-}\n\
-__END_COMPILER__\n", header, macros, parser);
-	}
+		buffer[0] = 0;
+		sprintf(buffer, "%s%s", path, output);
+		outfd = open(buffer, O_WRONLY | O_CREAT, 0644);
+		dprintf(outfd, "#include <fcntl.h>					\n\
+#include <stdio.h>											\n\
+#include \"get_next_linev2/get_next_line.h\" 				\n\
+%s 															\n\
+															\n\
+%s															\n\
+															\n\
+int main(int ac, char **av)									\n\
+{															\n\
+	if (ac < 2)												\n\
+	{														\n\
+		printf(\"Usage: ./%%s <source.ç>\n\", av[0]);		\n\
+		return (1);											\n\
+	}														\n\
+	int	fd = open(av[1], O_RDONLY);							\n\
+	char	*token;											\n\
+	char	*token_history[8096];							\n\
+	int		token_i = 0										\n\
+															\n\
+	while ((token = get_next_token(fd, isspace)))			\n\
+	{														\n\
+		token_history[token_i]	= token;					\n\
+		if (0) {(void)0;}									\n\
+		%s													\n\
+		token_i += 1;										\n\
+	}														\n\
+	return (0);												\n\
+}", header, macros, parser);
+			close(outfd);
+		}
 	p = 0;
 	while (p < ty)
 	{
@@ -601,7 +626,7 @@ int			main(int ac, char **av)
 	while (p < sources_count)
 	{
 		printf("sources[]\t: %s\n", sources[p]);
-		r = parse(sources[p], 0);
+		r = parse(sources[p], 0, output);
 		if (r == 4242)
 		{
 			CMD_ERROR("no such file or directory: '%s'", sources[p]);
