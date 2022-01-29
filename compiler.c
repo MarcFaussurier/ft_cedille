@@ -59,8 +59,25 @@ static int	is_name(char c)
 char		*ft_generate_macro_parser(char *id, char *pattern)
 {
 	char	*out = malloc(8096);
+	int		i = 0;
 
 	strcat(out, "else if (");
+	while (pattern[i])
+	{
+		if (pattern[i] == '<')
+		{
+			i += 1;
+			while (is_name(pattern[i]))
+				i += 1;
+			while (!is_name(pattern[i]) && pattern[i] != '>')
+				i += 1;
+			while (is_name((pattern[i])))
+			{
+				i += 1;
+			}
+		}
+		i += 1;
+	}
 	strcat(out, pattern);
 	strcat(out, ")\n{");
 	strcat(out, id);
@@ -164,7 +181,7 @@ char 		*strscat(char **strs, int from, int to, int s)
 	return (o);
 }
 
-static int	parse(char *path, int depth, char *output)
+static int	parse(const char *path, int depth, const char *output)
 {
 	int		fd;
 	int		outfd;
@@ -520,7 +537,7 @@ int main(int ac, char **av)									\n\
 {															\n\
 	if (ac < 2)												\n\
 	{														\n\
-		printf(\"Usage: ./%%s <source.ç>\n\", av[0]);		\n\
+		printf(\"Usage: ./%%s <source.ç>\\n\", av[0]);		\n\
 		return (1);											\n\
 	}														\n\
 	int	fd = open(av[1], O_RDONLY);							\n\

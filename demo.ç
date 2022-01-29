@@ -4,13 +4,17 @@ macro int f(int x)
 {
 	return (x);
 }
-macro rule (Hello <wordG dd><word tt><test f>!)
+macro rule
+(
+	<s[i + x] == "Hello"[x] 	; x >= 5>  
+		<name1[x] = c[i + x] 	; c[i + x] != '!'>
+)
 {
-	return(cat("Hello dear ", word));
+	return(cat("Hello ", name1));
 }
 
 int main(int ac, char **av)
 {
-	printf ("Hello Doe!");
+	printf ("Hello aa, bb!");
 	return (0);
 }

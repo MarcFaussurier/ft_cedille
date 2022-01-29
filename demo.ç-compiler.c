@@ -9,15 +9,14 @@
  															
 															
 char *macro_0(char *testt42){return ( cat ( " Hello   " , test42 ) );}
-char *macro_1(char *wordG,char *word,char *test){return ( cat ( " Hello   dear   " , word ) );}
+char *macro_1(char *s,char *name1){return ( cat ( " Hello   " , name1 ) );}
 															
 															
 int main(int ac, char **av)									
 {															
 	if (ac < 2)												
 	{														
-		printf("Usage: ./%s <source.ç>
-", av[0]);		
+		printf("Usage: ./%s <source.ç>\n", av[0]);		
 		return (1);											
 	}														
 	int	fd = open(av[1], O_RDONLY);							
@@ -31,10 +30,11 @@ int main(int ac, char **av)
 		if (0) {(void)0;}									
 		else if (HEllo < testt42 >;)
 {macro_0()}
-else if (Hello < wordG dd > < word tt > < test f >!)
+else if (< s [ i + x ] = = " Hello " [ x ] ; x > = 5 > < name1 [ x ] = c [ i + x ] ; c [ i + x ] ! = ' ! '>)
 {macro_1()}
 													
 		token_i += 1;										
 	}														
 	return (0);												
+}												
 }
