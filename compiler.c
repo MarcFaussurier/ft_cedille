@@ -48,56 +48,71 @@ static int 	is_ctoken(char c)
 	return ((int)memchr(c_tokens, c, sizeof(c_tokens) / sizeof(char) - 1));
 }
 
-char		*ft_generate_macro_function(char *str)
+
+char		*ft_generate_macro_parser(int id, char *pattern)
+{
+	return (0);	
+}
+
+char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 {
 	int		i;
 	int		z;
 	int		y;
-	int		label_exists;
 	char	labels[255][255];
 	int 	label_count;
+	char	*out = malloc(8015);
+	int		p;
 
+	*out = 0;
+	strcat(out, "char *");
+	strcat(out, id);
+	strcat(out, "(");
 	i = 0;
 	label_count = 0;
-	while (str[i])
+	while (pattern[i])
 	{
-		if (str[i] == '<')
+		if (pattern[i] == '<')
 		{
-			while (isalpha(str[i]))
+			while (isalpha(pattern[i]))
 			{
-				labels[label_count][i] = str[i];
+				labels[label_count][i] = pattern[i];
 				i += 1;
 			}
 			labels[label_count][i] = 0;
 			z = 0;
-			label_exists = 0;
 			while (z < label_count)
 			{
 				if (z != label_count && !strcmp(labels[label_count], labels[z]))
 				{
-					label_exists = 1;
-					// token already exists
 					label_count -= 1;
 					break ;
 				}
-
+				z += 1;
 			}
-	//		if (!label_exists)
-//			{
-				printf("label[]\t%s\n", labels[label_count]);
-//			}
 			label_count += 1;
 		}
-		else if (str[i] == '>')
+		else if (pattern[i] == '>')
+		{
+		}
 		i += 1;
 	}
-	return (0);	
+	p = 0;
+	while (p < label_count)
+	{
+		strcat(out, "char *");
+		strcat(out, labels[p]);
+		p += 1;
+		if (p != label_count)
+			strcat(out, ",");
+	}
+	strcat(out, "){");
+	strcat(out, body);
+	strcat(out, "}");
+	return (out);	
 }
 
-char		*ft_generate_macro_parser(char *str)
-{
-	return (0);	
-}
+
 
 
 char 		*strscat(char **strs, int from, int to, int s)
@@ -139,6 +154,8 @@ static int	parse(char *path, int depth)
 	int		fd;
 	int		ty;
 	char	*token_history[TOKEN_HISTORY_MAX];
+	char	*full_token_history[TOKEN_HISTORY_MAX];
+	int 	fty;
 	char	*compiler[TOKEN_HISTORY_MAX];
 	int		compiler_i;
 	char	buffer[255];
@@ -182,8 +199,10 @@ static int	parse(char *path, int depth)
 	char	error[2048];
 	char	macros[4096];
 	char	parser[4096];
+	char	header[4096];
 	char	*body;
 	char	*pattern;
+	char	idz[64];
 
 	p = 0;
 	while (p < references_count)
@@ -198,7 +217,7 @@ static int	parse(char *path, int depth)
 	sprintf(references[references_count], "%s", path);
 	references_count += 1;
 	printf("__________\n");
-	printf ("parsing: %s\n", path);
+	printf ("#parsing: %s\n", path);
 	fd 							= open(path, O_RDONLY);
 	if (fd < 0)
 		return (4242);
@@ -206,6 +225,7 @@ static int	parse(char *path, int depth)
 	line 						= 1;
 	col 						= 1;
 	ty 							= 0;
+	fty							= 0;
 	is.import 					= 0;
 	is.quotes 					= 0;
 	is.quote 					= 0;
@@ -222,7 +242,6 @@ static int	parse(char *path, int depth)
 	while ((token 				= get_next_token(fd, is_ctoken)))
 	{
 		token_len = strlen(token);
-
 		if (is_ctoken(token[token_len - 1]))
 		{
 			if (token_len > 1)
@@ -242,17 +261,21 @@ static int	parse(char *path, int depth)
 			goto parse_token;
 		continue;
 parse_token:
-
-		 if (!(!is.quotes && !is.quote && !is.comment && !is.ml_comment) 
+		//if (token[token_len-1] == '\n')
+	//	{
+	//		compiler[compiler_i++]	 = token;
+			//printf("|\n");
+	//	}
+		if (!(!is.quotes && !is.quote && !is.comment && !is.ml_comment) 
 				 || !isspace(token[0]))
-		 {
+		{
 				printf("%i:\t%s\n", ty, token);
 			 	token_history[ty] = token;
 		 }
 		 else
 		 {
-			ty -= 1;
-			goto next;
+				ty -= 1;
+				goto next;
 		 }
 		col += token_len;
 		if (EQ(token, "\\") && !is.escaped)
@@ -357,28 +380,28 @@ flush_import:
 			}
 			else if (EQ(token, "("))
 			{
-				parenthesis_level 	+= 1;
+				parenthesis_level += 1;
 
 				if (parenthesis_level == 1 && macro_pattern_begin == -1)
 					macro_pattern_begin = ty + 1;
 			}
 			else if (EQ(token, ")"))
 			{
-				parenthesis_level 	-= 1;
+				parenthesis_level -= 1;
 				if (!parenthesis_level && macro_pattern_begin && !macro_body_begin)
 					macro_pattern_end = ty - 1;
 			}
 			else if (EQ(token, "{"))
 			{
-				brace_level 		+= 1;
+				brace_level += 1;
 				if (brace_level == 1 && macro_pattern_begin && !macro_body_begin)
 				{
-					macro_body_begin 	= ty + 1;
+					macro_body_begin = ty + 1;
 				}
 			}
 			else if (EQ(token, "}"))
 			{
-				brace_level 		-= 1;
+				brace_level -= 1;
 				if (brace_level == 0)
 				{
 					if (macro_fn_begin)
@@ -392,7 +415,7 @@ flush_import:
 					else if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= ty - 1;
-						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 1);
+						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 0);
 						body = strscat(token_history, macro_body_begin, macro_body_end, 1);
 						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", pattern, body);
 						sprintf(macro_patterns[macro_patterns_count][0], "%s", pattern);
@@ -407,8 +430,7 @@ flush_import:
 					}
 					else if (main_begin)
 					{
-						is.in_compiler = 1;
-						compiler_i -= 1; 
+						is.in_compiler = -1;
 					}
 				}
 			}
@@ -428,7 +450,13 @@ flush_import:
 next:
 		if (!depth && is.in_compiler)
 		{
-			compiler[compiler_i++] = token;	
+			if (is.in_compiler > 0)
+				compiler[compiler_i++] = token;
+			is.in_compiler = 1;
+		}
+		else if (!depth && !is.in_compiler)
+		{
+		//	printf ("[%s] not in compiler\n", token);
 		}
 		ty += 1;
 		if (is.split)
@@ -441,35 +469,38 @@ next:
 #define str(X) #X
 	if (!depth)
 	{
-		printf("compiler: \n");
 		macros[0] = 0;
 		parser[0] = 0;
 		p = 0;
 		while (p < macro_patterns_count)
 		{
-			strcat(macros, macro_patterns[p]);
-			strcat(parser, macro_patterns[p]);
+			idz[0] = 0;
+			strcat(macros, ft_generate_macro_function
+					(idz, macro_patterns[p][0], macro_patterns[p][1]));
+			strcat(parser, macro_patterns[p][0]);
 			p += 1;
 		}
 		p = 0;
+		header[0] = 0;
 		while (p < compiler_i)
 		{
-			printf("%i:\t%s\n", p, compiler[p]);
+			strcat(header, compiler[p]);
 			p += 1;
 		}
-		printf
-		(str(
-			 \#include <stdio.h>
-			 \#include "get_next_linev2/get_next_line.h"
-			
-		     %s	
-			
-			 int main(int ac, char **av)
-			 {
-				%s
-				return (0);
-			 }\n
-		), macros, parser);
+		printf("__COMPILER__\n\
+			#include <stdio.h>\n\
+			#include \"get_next_linev2/get_next_line.h\" \n\
+			\n\
+			-- %s \n\
+			\n\
+		    -- %s	\n\
+			\n\
+			int main(int ac, char **av)\n\
+			{\n\
+				%s\n\
+				\n\
+				return (0);\n\
+			}\n__END_COMPILER__\n", header, macros, parser);
 	}
 	p = 0;
 	while (p < ty)

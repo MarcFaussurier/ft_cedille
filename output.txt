@@ -4,7 +4,7 @@ includes[]	: /usr/include
 includes[]	: /usr/local/include
 sources[]	: demo.c
 __________
-parsing: demo.c
+#parsing: demo.c
 0:	#
 1:	import
 2:	<
@@ -13,10 +13,10 @@ parsing: demo.c
 5:	h
 6:	>
 __________
-parsing: /usr/include/ç.h
+#parsing: /usr/include/ç.h
 -- parse(/usr/include/ç.h) returned 4242
 __________
-parsing: /usr/local/include/ç.h
+#parsing: /usr/local/include/ç.h
 -- parse(/usr/local/include/ç.h) returned 4242
 [1mdemo.c:1:20: [31merror: [0m[1m'ç.h' file not found[0m
 7:	#
@@ -25,10 +25,10 @@ parsing: /usr/local/include/ç.h
 10:	test
 11:	>
 __________
-parsing: /usr/include/test
+#parsing: /usr/include/test
 -- parse(/usr/include/test) returned 4242
 __________
-parsing: /usr/local/include/test
+#parsing: /usr/local/include/test
 -- parse(/usr/local/include/test) returned 4242
 [1mdemo.c:1:39: [31merror: [0m[1m'test' file not found[0m
 12:	#
@@ -39,7 +39,7 @@ parsing: /usr/local/include/test
 17:	c
 18:	"
 __________
-parsing: test.c
+#parsing: test.c
 0:	macro
 1:	int
 2:	f
@@ -104,7 +104,7 @@ Macro fn[int f ( int x ) { return ( x ) ;}]
 63:	)
 64:	;
 65:	}
-Macro pattern[pattern='Hello < word >!'
+Macro pattern[pattern='Hello<word>!'
 	body='return ( cat ( " Hello   dear   " , word ) );']
 66:	int
 67:	main
@@ -135,43 +135,20 @@ main begins at 66
 91:	)
 92:	;
 93:	}
-compiler: 
-0:	#
-1:	import
-2:	 
-3:	<
-4:	ç
-5:	.
-6:	h
-7:	>
-8:	
-
-9:	#
-10:	import
-11:	 
-12:	<
-13:	test
-14:	>
-15:	
-
-16:	#
-17:	import
-18:	 
-19:	"
-20:	test
-21:	.
-22:	c
-23:	"
-24:	
-
-25:	}
-26:	
-
-27:	
-
-28:	}
-29:	
-
-#include <stdio.h> #include "get_next_linev2/get_next_line.h" Hello < word >! int main(int ac, char **av) { Hello < word >! return (0); }
+__COMPILER__
+			#include <stdio.h>
+			#include "get_next_linev2/get_next_line.h" 
+			
+			--  
+			
+		    -- char *(char *){return ( cat ( " Hello   dear   " , word ) );}	
+			
+			int main(int ac, char **av)
+			{
+				Hello<word>!
+				
+				return (0);
+			}
+__END_COMPILER__
 __________
 file demo.c.ç-compiler.c generated!
