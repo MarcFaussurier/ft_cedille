@@ -21,12 +21,17 @@
 	printf("ç: \033[1m\033[31merror: \033[0m%s\n", error);\
 	errors += 1; }
 
+const char *default_output = "a.ç-compiler.c";
 const char *C_TOKENS = "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r";
 
 int import_paths_count = 2;
 char import_paths[255][255] = {
 	"/usr/include",
 	"/usr/local/include",
+};
+
+int sources_count = 0;
+char sources[255][255] = {
 };
 
 static int 	strlen_ctokens;
@@ -44,7 +49,6 @@ char *strscat(char **strs, int from, int to)
 	int	x;
 	char *o;
 
-	printf("strscat[from=%i, to=%i]\n");	
 	l = 0;
 	i = from;
 	while (i <= to)
@@ -329,6 +333,7 @@ int			main(int ac, char **av)
 	int		q;
 	int		errors;
 	char	error[255];
+	const char	*output;
 
 	if (ac < 2)
 	{
@@ -338,6 +343,7 @@ int			main(int ac, char **av)
 	errors = 0;
 	strlen_ctokens = strlen(C_TOKENS);
 	i 								= 1;
+	output = default_output;
 	// TODO: parse -I && -o flags
 	while (i < ac)
 	{
@@ -358,6 +364,14 @@ int			main(int ac, char **av)
 			else if (av[i][1] == 'o' && !av[i][2])
 			{
 
+				if (ac < i)
+				{	
+					CMD_ERROR("missing output file, default to '%s'", default_output);
+				}
+				else
+					output = av[i +  1];
+				i += 2;
+				continue ;
 			}
 			else
 			{
@@ -366,13 +380,39 @@ int			main(int ac, char **av)
 			i += 1;
 			continue ;
 		}
-		r = parse(av[i]);
-		if (r == 4242)
+		else
 		{
-			// TODO: get relative folder of file for double quotes includes
-			CMD_ERROR("no such file or directory: '%s'", av[i]);
+			q = 0;
+			while (av[i][q])
+			{
+				sources[sources_count][q] = av[i][q];
+				q += 1;
+			}
+			sources[sources_count][q] = 0;
+			sources_count += 1;
 		}
+
+
 		i += 1;
 	}
-	return (errors);
+	printf("output to : %s\n", output);
+	int p = 0;
+	while (p < import_paths_count)
+		printf("includes[] : %s\n", import_paths[p++]);
+	p = 0;
+	while (p < sources_count)
+		printf("sources[] : %s\n", sources[p++]);
+	// for each sources ....
+	//		r = parse(av[i]);
+	//		if (r == 4242)
+	//		{
+				// TODO: get relative folder of file for double quotes includes
+	//			CMD_ERROR("no such file or directory: '%s'", av[i]);
+	//		}
+//			else
+//			{
+
+//			}
+
+			return (errors);
 }
