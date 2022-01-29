@@ -83,11 +83,13 @@ char 		*strscat(char **strs, int from, int to, int s)
 	return (o);
 }
 
-static int	parse(char *path)
+static int	parse(char *path, int depth)
 {
 	int		fd;
 	int		ty;
 	char	*token_history[TOKEN_HISTORY_MAX];
+	char	*compiler[TOKEN_HISTORY_MAX];
+	int		compiler_i;
 	char	buffer[255];
 	char	*token;
 	char	*l;
@@ -106,6 +108,7 @@ static int	parse(char *path)
 		int macro_body:				1;
 		int split:					1;
 		int	local_import:			1;
+		int	in_compiler:			1;
 	}		is;
 	int 	parenthesis_level;
 	int 	bracket_level;
@@ -157,6 +160,7 @@ static int	parse(char *path)
 	is.preprocessor				= 0;
 	is.import					= 0;
 	is.split					= 0;
+	is.in_compiler				= 1;
 	parenthesis_level 			= 0;
 	bracket_level				= 0;
 	brace_level					= 0;
@@ -183,6 +187,7 @@ static int	parse(char *path)
 			goto parse_token;
 		continue;
 parse_token:
+
 		 if (!(!is.quotes && !is.quote && !is.comment && !is.ml_comment) 
 				 || !isspace(token[0]))
 		 {
@@ -221,6 +226,7 @@ parse_token:
 			}
 			else if (EQ(token, "macro"))
 			{
+				is.in_compiler = 0;
 				macro_fn_begin = ty + 1;
 			}
 			else if (EQ(token, "rule"))
@@ -232,6 +238,8 @@ parse_token:
 			else if (EQ(token, "main") && EQ(token_history[ty - 1], "int"))
 			{
 				main_begin = ty - 1;
+				compiler_i -= 1;
+				is.in_compiler = 0;
 				printf("main begins at %i\n", main_begin);
 			}
 			else if (EQ(token, "["))
@@ -266,7 +274,7 @@ flush_import:
 					import_end = 0;
 					if (is.local_import)
 					{
-						if (parse(import_path))
+						if (parse(import_path, depth + 1))
 						{
 							printf("-- parse(%s) returned %i\n", buffer, r);
 						}
@@ -279,7 +287,7 @@ flush_import:
 					{
 						buffer[0] = 0;
 						sprintf(buffer, "%s/%s", import_paths[p], import_path);
-						r = parse(buffer);
+						r = parse(buffer, depth + 1);
 						if (!r)
 						{
 							p = 0;
@@ -337,10 +345,18 @@ flush_import:
 									macro_body_begin, macro_body_end, 1);
 						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", 
 								s0, s);
+
+						is.in_compiler = 1;
+						compiler_i -= 1;
 						macro_pattern_begin = 0;
 						macro_pattern_end = 0;
 						macro_body_begin = 0;
 						macro_body_end = 0;
+					}
+					else if (main_begin)
+					{
+						is.in_compiler = 1;
+						compiler_i -= 1; 
 					}
 				}
 			}
@@ -358,6 +374,10 @@ flush_import:
 		else if (!EQ(token, "\\") && is.escaped)
 			is.escaped 			= 0;
 next:
+		if (!depth && is.in_compiler)
+		{
+			compiler[compiler_i++] = token;	
+		}
 		ty += 1;
 		if (is.split)
 		{
@@ -365,6 +385,32 @@ next:
 			token = l;
 			goto parse_token;
 		}
+	}
+#define str(X) #X
+	if (!depth)
+	{
+		printf("compiler: \n");
+		p = 0;
+		while (p < compiler_i)
+		{
+			printf("%i:\t%s\n", p, compiler[p]);
+			p += 1;
+		}
+		char *macros = "/*macros callbacks function here*/";
+		char *parser = "/*parser that call callbacks here according matches*/";
+		printf
+		(str(
+			 \#include <stdio.h>
+			 \#include "get_next_linev2/get_next_line.h"
+			
+		     %s	
+			
+			 int main(int ac, char **av)
+			 {
+				%s
+				return (0);
+			 }\n
+		), macros, parser);
 	}
 	p = 0;
 	while (p < ty)
@@ -453,7 +499,7 @@ int			main(int ac, char **av)
 	while (p < sources_count)
 	{
 		printf("sources[]\t: %s\n", sources[p]);
-		r = parse(sources[p]);
+		r = parse(sources[p], 0);
 		if (r == 4242)
 		{
 			CMD_ERROR("no such file or directory: '%s'", sources[p]);
