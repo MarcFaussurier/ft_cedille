@@ -4,6 +4,7 @@
 #include "fcntl.h"
 #include "string.h"
 #include "ctype.h"
+#include "stdarg.h"
 
 #ifndef TOKEN_HISTORY_MAX
 # define TOKEN_HISTORY_MAX 8096
@@ -37,8 +38,6 @@ int 		import_paths_count = 2;
 char 		import_paths[255][255] = { "/usr/include", "/usr/local/include"};
 int 		sources_count = 0;
 char 		sources[255][255];
-int			macro_functions_count = 0;
-char		macro_functions[255][4096];
 int			macro_patterns_count = 0;
 char		macro_patterns[255][2][4096];
 int			references_count = 0;
@@ -48,6 +47,58 @@ static int 	is_ctoken(char c)
 {
 	return ((int)memchr(c_tokens, c, sizeof(c_tokens) / sizeof(char) - 1));
 }
+
+char		*ft_generate_macro_function(char *str)
+{
+	int		i;
+	int		z;
+	int		y;
+	int		label_exists;
+	char	labels[255][255];
+	int 	label_count;
+
+	i = 0;
+	label_count = 0;
+	while (str[i])
+	{
+		if (str[i] == '<')
+		{
+			while (isalpha(str[i]))
+			{
+				labels[label_count][i] = str[i];
+				i += 1;
+			}
+			labels[label_count][i] = 0;
+			z = 0;
+			label_exists = 0;
+			while (z < label_count)
+			{
+				if (z != label_count && !strcmp(labels[label_count], labels[z]))
+				{
+					label_exists = 1;
+					// token already exists
+					label_count -= 1;
+					break ;
+				}
+
+			}
+	//		if (!label_exists)
+//			{
+				printf("label[]\t%s\n", labels[label_count]);
+//			}
+			label_count += 1;
+		}
+		else if (str[i] == '>')
+		i += 1;
+	}
+	return (0);	
+}
+
+char		*ft_generate_macro_parser(char *str)
+{
+	return (0);	
+}
+
 
 char 		*strscat(char **strs, int from, int to, int s)
 {
@@ -129,6 +180,10 @@ static int	parse(char *path, int depth)
 	int		p;
 	int		r;
 	char	error[2048];
+	char	macros[4096];
+	char	parser[4096];
+	char	*body;
+	char	*pattern;
 
 	p = 0;
 	while (p < references_count)
@@ -329,23 +384,20 @@ flush_import:
 					if (macro_fn_begin)
 					{
 						macro_fn_end = ty;
-						char *s = strscat(token_history, 
-									macro_fn_begin, macro_fn_end, 1);
-						printf("Macro fn[%s]\n", s);
+						body = strscat(token_history, macro_fn_begin, macro_fn_end, 1);
+						printf("Macro fn[%s]\n", body);
 						macro_fn_begin = 0;
 						macro_fn_end = 0;
 					}	
 					else if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= ty - 1;
-						char *s0 = strscat(token_history, 
-									macro_pattern_begin, macro_pattern_end, 1);
-
-						char *s = strscat(token_history, 
-									macro_body_begin, macro_body_end, 1);
-						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", 
-								s0, s);
-
+						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 1);
+						body = strscat(token_history, macro_body_begin, macro_body_end, 1);
+						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", pattern, body);
+						sprintf(macro_patterns[macro_patterns_count][0], "%s", pattern);
+						sprintf(macro_patterns[macro_patterns_count][1], "%s", body);
+						macro_patterns_count += 1;	
 						is.in_compiler = 1;
 						compiler_i -= 1;
 						macro_pattern_begin = 0;
@@ -390,14 +442,21 @@ next:
 	if (!depth)
 	{
 		printf("compiler: \n");
+		macros[0] = 0;
+		parser[0] = 0;
+		p = 0;
+		while (p < macro_patterns_count)
+		{
+			strcat(macros, macro_patterns[p]);
+			strcat(parser, macro_patterns[p]);
+			p += 1;
+		}
 		p = 0;
 		while (p < compiler_i)
 		{
 			printf("%i:\t%s\n", p, compiler[p]);
 			p += 1;
 		}
-		char *macros = "/*macros callbacks function here*/";
-		char *parser = "/*parser that call callbacks here according matches*/";
 		printf
 		(str(
 			 \#include <stdio.h>
@@ -509,7 +568,6 @@ int			main(int ac, char **av)
 			printf("file %s%s generated!\n", sources[p], output);
 		}
 		macro_patterns_count = 0;
-		macro_functions_count = 0;
 		references_count = 0;
 		p += 1;
 	}

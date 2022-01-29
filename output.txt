@@ -13,12 +13,12 @@ parsing: demo.c
 5:	h
 6:	>
 __________
-parsing: /usr/include/ç .h
--- parse(/usr/include/ç .h) returned 4242
+parsing: /usr/include/ç.h
+-- parse(/usr/include/ç.h) returned 4242
 __________
-parsing: /usr/local/include/ç .h
--- parse(/usr/local/include/ç .h) returned 4242
-[1mdemo.c:1:20: [31merror: [0m[1m'ç .h' file not found[0m
+parsing: /usr/local/include/ç.h
+-- parse(/usr/local/include/ç.h) returned 4242
+[1mdemo.c:1:20: [31merror: [0m[1m'ç.h' file not found[0m
 7:	#
 8:	import
 9:	<
@@ -39,15 +39,21 @@ parsing: /usr/local/include/test
 17:	c
 18:	"
 __________
-parsing: test .c
--- parse(/usr/local/include/test) returned 4242
+parsing: test.c
+0:	macro
+1:	int
+2:	f
+3:	(
+4:	int
+5:	x
+6:	)
+7:	{
+8:	return
+9:	x
+10:	;
+11:	}
+Macro fn[int f ( int x ) { return x ;}]
 __________
-parsing: /usr/include/test .c
--- parse(/usr/include/test .c) returned 4242
-__________
-parsing: /usr/local/include/test .c
--- parse(/usr/local/include/test .c) returned 4242
-[1mdemo.c:1:62: [31merror: [0m[1m'test .c' file not found[0m
 19:	macro
 20:	int
 21:	f
@@ -70,16 +76,8 @@ Macro fn[int f ( int x ) { return ( x ) ;}]
 37:	.
 38:	c
 39:	"
-__________
-parsing: test .c
--- parse(/usr/local/include/test .c) returned 4242
-__________
-parsing: /usr/include/test .c
--- parse(/usr/include/test .c) returned 4242
-__________
-parsing: /usr/local/include/test .c
--- parse(/usr/local/include/test .c) returned 4242
-[1mdemo.c:1:122: [31merror: [0m[1m'test .c' file not found[0m
+[1mtest.c:1:36: [31merror: [0m[1mFile 'test.c' already included !
+[0m
 40:	macro
 41:	rule
 42:	(
@@ -137,5 +135,43 @@ main begins at 66
 91:	)
 92:	;
 93:	}
+compiler: 
+0:	#
+1:	import
+2:	 
+3:	<
+4:	ç
+5:	.
+6:	h
+7:	>
+8:	
+
+9:	#
+10:	import
+11:	 
+12:	<
+13:	test
+14:	>
+15:	
+
+16:	#
+17:	import
+18:	 
+19:	"
+20:	test
+21:	.
+22:	c
+23:	"
+24:	
+
+25:	}
+26:	
+
+27:	
+
+28:	}
+29:	
+
+#include <stdio.h> #include "get_next_linev2/get_next_line.h" Hello < word >! int main(int ac, char **av) { Hello < word >! return (0); }
 __________
 file demo.c.ç-compiler.c generated!

@@ -1,7 +1,7 @@
 #import <ç.h>
 #import <test>
 #import "test.c"
-#import "demo.c"
+
 macro int f(int x)
 {
 	return (x);
@@ -17,4 +17,3 @@ int main(int ac, char **av)
 	printf ("Hello Doe!");
 	return (0);
 }
-
