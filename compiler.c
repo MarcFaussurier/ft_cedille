@@ -84,15 +84,12 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 		if (pattern[i] == '<')
 		{
 			i += 1;
-			printf("LABELL:%c\n", pattern[i]);
 			u = 0;
 			while (isspace(pattern[i]))
 				i += 1;
 			while (is_name(pattern[i]))
 				labels[label_count][u++] = pattern[i++];
-			printf("LABELL:%c %i\n", pattern[i], i);
 			labels[label_count][u] = 0;
-			printf("LABEL: %s\n", labels[label_count]);
 			z = 0;
 			while (z < label_count)
 			{
@@ -186,7 +183,7 @@ static int	parse(char *path, int depth)
 		int macro_body:				1;
 		int split:					1;
 		int	local_import:			1;
-		int	in_compiler:			1;
+		int	in_compiler:			2;
 	}		is;
 	int 	parenthesis_level;
 	int 	bracket_level;
@@ -249,6 +246,7 @@ static int	parse(char *path, int depth)
 	parenthesis_level 			= 0;
 	bracket_level				= 0;
 	brace_level					= 0;
+	compiler_i					= 0;
 	while ((token 				= get_next_token(fd, is_ctoken)))
 	{
 		token_len = strlen(token);
@@ -326,8 +324,8 @@ parse_token:
 			else if (EQ(token, "main") && EQ(token_history[ty - 1], "int"))
 			{
 				main_begin = ty - 1;
-				compiler_i -= 1;
 				is.in_compiler = 0;
+				compiler_i -= 2;
 				printf("main begins at %i\n", main_begin);
 			}
 			else if (EQ(token, "["))
@@ -431,8 +429,7 @@ flush_import:
 						sprintf(macro_patterns[macro_patterns_count][0], "%s", pattern);
 						sprintf(macro_patterns[macro_patterns_count][1], "%s", body);
 						macro_patterns_count += 1;	
-						is.in_compiler = 1;
-						compiler_i -= 1;
+						is.in_compiler = -1;
 						macro_pattern_begin = 0;
 						macro_pattern_end = 0;
 						macro_body_begin = 0;
@@ -458,6 +455,7 @@ flush_import:
 		else if (!EQ(token, "\\") && is.escaped)
 			is.escaped 			= 0;
 next:
+		printf("compiler_i: %i\n", compiler_i);
 		if (!depth && is.in_compiler)
 		{
 			if (is.in_compiler > 0)
@@ -499,19 +497,20 @@ next:
 			p += 1;
 		}
 		printf("__COMPILER__\n\
-			#include <stdio.h>\n\
-			#include \"get_next_linev2/get_next_line.h\" \n\
-			\n\
-			-- %s \n\
-			\n\
-		    -- %s	\n\
-			\n\
-			int main(int ac, char **av)\n\
-			{\n\
-				%s\n\
-				\n\
-				return (0);\n\
-			}\n__END_COMPILER__\n", header, macros, parser);
+#include <stdio.h>\n\
+#include \"get_next_linev2/get_next_line.h\" \n\
+\n\
+%s \n\
+\n\
+%s\n\
+\n\
+int main(int ac, char **av)\n\
+{\n\
+	%s\n\
+	\n\
+	return (0);\n\
+}\n\
+__END_COMPILER__\n", header, macros, parser);
 	}
 	p = 0;
 	while (p < ty)
