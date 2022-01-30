@@ -3,6 +3,7 @@
 // syscalls :
 #include "unistd.h"
 #include "fcntl.h"
+#include "sys/stat.h"
 // will be replaced by ft :
 #include "stdio.h"
 #include "string.h"
@@ -245,8 +246,6 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 	int 	macro_pattern_end;
 	int 	macro_body_begin;
 	int 	macro_body_end;
-	int		macro_fn_begin;
-	int 	macro_fn_end;
 	int		line;
 	int		col;
 	int		errors;
@@ -358,13 +357,10 @@ parse_token:
 			else if (EQ(token, "macro"))
 			{
 				is.in_compiler = 0;
-				macro_fn_begin = fty + 1;
 			}
 			else if (EQ(token, "rule"))
 			{
 				macro_pattern_begin = -1;
-				macro_fn_begin = 0;
-				macro_fn_end = 0;
 			}
 			else if (EQ(token, "main") && EQ(token_history[ty - 1], "int"))
 			{
@@ -457,18 +453,17 @@ flush_import:
 				brace_level -= 1;
 				if (brace_level == 0)
 				{
-					if (macro_fn_begin)
-					{
-						macro_fn_end = fty;
-						body = strscat(full_token_history, macro_fn_begin, macro_fn_end, 1);
-						printf("Macro fn[%s]\n", body);
-						macro_fn_begin = 0;
-						macro_fn_end = 0;
-					}	
-					else if (macro_pattern_begin && macro_body_begin)
+			//		if (macro_fn_begin)
+			//		{
+				//		macro_fn_end = fty;
+					//	body = strscat(full_token_history, macro_fn_begin, macro_fn_end, 1);
+					//	printf("Macro fn[%s]\n", body);
+				//		macro_fn_begin = 0;
+				//		macro_fn_end = 0;
+			//		}	
+					if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= fty - 1;
-						// TODO:: Parse -o and -e flags
 						pattern = strscat(full_token_history, macro_pattern_begin, macro_pattern_end, 0);
 						body = strscat(full_token_history, macro_body_begin, macro_body_end, 0);
 						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", pattern, body);
@@ -546,33 +541,40 @@ next:
 		buffer[0] = 0;
 		sprintf(buffer, "%s/%s%s", output_prefix, path, output_sufix);
 		mkpath(buffer);
-
 		outfd = open(buffer, O_WRONLY | O_CREAT, 0644);
 		dprintf(outfd, "#include <fcntl.h>					\n\
 #include <stdio.h>											\n\
-#include \"get_next_linev2/get_next_line.h\" 				\n\
+#include <fcntl.h>											\n\
+#include <sys/mman.h>										\n\
+#include <unistd.h>											\n\
 %s 															\n\
 															\n\
 %s															\n\
 															\n\
 int main(int ac, char **av)									\n\
 {															\n\
+	int		fd;												\n\
+	int		len;											\n\
+	char	*data;											\n\
+	int		i;												\n\
+	int		x;												\n\
+															\n\
 	if (ac < 2)												\n\
 	{														\n\
 		printf(\"Usage: ./%%s <source.ç>\\n\", av[0]);		\n\
 		return (1);											\n\
 	}														\n\
-	int	fd = open(av[1], O_RDONLY);							\n\
-	char	*token;											\n\
-	char	*token_history[8096];							\n\
-	int		token_i = 0										\n\
-															\n\
-	while ((token = get_next_token(fd, isspace)))			\n\
+	fd = open(av[1], O_RDONLY);								\n\
+	len = lseek(fd, 0, SEEK_END);							\n\
+	data = mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);		\n\
+	len = 0;												\n\
+	while (data[len])										\n\
 	{														\n\
-		token_history[token_i]	= token;					\n\
-		if (0) {(void)0;}									\n\
-		%s													\n\
-		token_i += 1;										\n\
+		i = len;											\n\
+		x = 0;												\n\
+	/*	if (0) {(void)0;}									\n\
+		%s	*/												\n\
+		len += 1;											\n\
 	}														\n\
 	return (0);												\n\
 }", header, macros, parser);
