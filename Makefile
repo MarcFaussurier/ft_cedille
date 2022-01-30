@@ -12,7 +12,7 @@ all:
 	$(OUT)/$(SRC)/spec-mvp.ç-compiler\
 		$(OUT)/$(SRC)/spec-mvp.ç -o \
 			$(OUR)/$(SRC)/spec-mvp.c
-	cc -I$(SRC) $(OUT)/$(SRC)/spec-mvp.c -o\
+	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.c -o\
 			$(OUT)/$(SRC)/spec-mvp.c $(OUT)/$(SRC)/spec-mvp
 clean:
 	rm -rf çc çc.dSYM

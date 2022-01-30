@@ -47,6 +47,24 @@ int			macro_patterns_count = 0;
 char		macro_patterns[255][2][4096];
 int			references_count = 0;
 char		references[255][255];
+int			label_count = 0;
+char		labels[255][255];
+int			passed_label_count = 0;
+char		passed_labels[255];
+
+static int	is_def(char *label)
+{
+	int		i;
+
+	i = 0;
+	while (i < label_count)
+	{
+		if (EQ(labels[i], label))
+			return (1);
+		i += 1;
+	}
+	return (0);
+}
 
 static int 	is_ctoken(char c)
 {
@@ -61,7 +79,98 @@ static int	is_name(char c)
 		||	(c >= '0' && c <= '9');
 }
 
-char		*ft_generate_macro_parser(char *id, char *pattern)
+char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int init, int fn)
+{
+	int		i;
+	int		z;
+	int		y;
+	char	*out = malloc(8096);
+	int		u;
+	int		p;
+
+	if (!init)
+		strcat(out, "i, x, s, ");
+	i = 0;
+	while (pattern[i])
+	{
+		if (pattern[i] == '<')
+		{
+			i += 1;
+			u = 0;
+			while (isspace(pattern[i]))
+				i += 1;
+			while (is_name(pattern[i]))
+				labels[label_count][u++] = pattern[i++];
+			labels[label_count][u] = 0;
+			if ( ((init && !is_def(labels[label_count])) || fn) && !EQ(labels[label_count], "s") && !EQ(labels[label_count], "x") && !EQ(labels[label_count], "i"))
+			{
+				strcat(out, "char ");
+				strcat(out, labels[label_count]);
+				strcat(out, "[1024]\n*");
+				if (!fn)
+					strcat(out, ", ");
+				else
+				{
+					strcat(out, labels[label_count]);
+					strcat(out, " = 0;\n");
+				}
+				label_count += 1;
+			}
+			else if (!init)
+			{
+				p = 0;		
+				while (p < label_count)
+				{
+					if (EQ(labels[p], labels[p]))
+						break ;
+					p += 1;
+				}
+				if (p == label_count)
+				{
+					strcat(out, labels[p]);
+					strcat(out, ",");
+				}
+			}	
+
+
+		}
+		i += 1;
+	}
+	if (!init)
+		strcat(out, "__end");
+	else if (!is_def("__end"))
+	{
+		strcat(out, "char ");
+		sprintf(labels[label_count], "%s","__end");
+		strcat(out, labels[label_count++]);
+		strcat(out, "[1024];\n]");
+	}
+	return (out);	
+}
+
+char		*ft_generate_macro_function(char *id, char *pattern, char *body)
+{
+	int		i;
+	int		z;
+	int		y;
+	char	*out = malloc(8096);
+	int		p;
+	int		u;
+
+	printf("pattern=%s - body=%s\n", pattern, body);
+	*out = 0;
+	strcat(out, "char *");
+	strcat(out, id);
+	strcat(out, "(");
+	strcat(out, ft_generate_macro_labels(id, pattern, body, 1));
+	strcat(out, ")");
+	strcat(out, "{\n");
+	strcat(out, body);
+	strcat(out, "\n}\n");
+	return (out);	
+}
+
+char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 {
 	char	*out = malloc(8096);
 	char	name1[8096];
@@ -78,37 +187,39 @@ char		*ft_generate_macro_parser(char *id, char *pattern)
 			i += 1;
 			y = 0;
 			cond1[0] = 0;
-			while (is_name(pattern[i]))
+			while (pattern[i] != ';')
 			{	
 				cond1[y] = pattern[i];
 				y += 1;
 				i += 1;
 			}
-			cond1[y] = 0;
-			while (!is_name(pattern[i]) && pattern[i] != '>')
-				i += 1;
-			cond2[0] = 0;
+			i += 1;
 			y = 0;
-			while (is_name((pattern[i])))
+			while (pattern[i] != '>')
 			{
 				cond2[y] = pattern[i];
 				i += 1;
+				y += 1;
 			}
 			cond2[y] = 0;
 			asprintf(&aspf, "																\n\
-					// ifndef names, define names as big enough charis						\n\
-																							\n\
+					%s																		\n\
 					x = 0;																	\n\
 					while (1)																\n\
 					{																		\n\
-						if (!%s)															\n\
+						if (!(%s))															\n\	
+						{																	\n\
+							i -= x;															\n\
 							break ;															\n\
-						if (!%s)															\n\
-							callback(names);												\n\
-							goto success ;													\n\
+						}																	\n\
+						if (!(%s))															\n\
+						{																	\n\
+							%s(%s);															\n\
+							goto success;													\n\
+						}																	\n\
 						i += 1;																\n\
 					}																		\n\
-			", cond1, cond2);
+			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2, id, ft_generate_macro_labels(id, pattern, body, 0));
 			strcat(out, aspf);
 		}
 		i += 1;
@@ -119,66 +230,6 @@ char		*ft_generate_macro_parser(char *id, char *pattern)
 	strcat(out, "}");
 	return (out);	
 }
-
-char		*ft_generate_macro_function(char *id, char *pattern, char *body)
-{
-	int		i;
-	int		z;
-	int		y;
-	char	labels[255][255];
-	int 	label_count;
-	char	*out = malloc(8096);
-	int		p;
-	int		u;
-
-	printf("pattern=%s - body=%s\n", pattern, body);
-	*out = 0;
-	strcat(out, "char *");
-	strcat(out, id);
-	strcat(out, "(");
-	i = 0;
-	label_count = 0;
-	while (pattern[i])
-	{
-		if (pattern[i] == '<')
-		{
-			i += 1;
-			u = 0;
-			while (isspace(pattern[i]))
-				i += 1;
-			while (is_name(pattern[i]))
-				labels[label_count][u++] = pattern[i++];
-			labels[label_count][u] = 0;
-			z = 0;
-			while (z < label_count)
-			{
-				if (z != label_count && !strcmp(labels[label_count], labels[z]))
-				{
-					label_count -= 1;
-					break ;
-				}
-				z += 1;
-			}
-			label_count += 1;
-		}
-		i += 1;
-	}
-	p = 0;
-	while (p < label_count)
-	{
-		strcat(out, "char *");
-		strcat(out, labels[p]);
-		p += 1;
-		if (p != label_count)
-			strcat(out, ",");
-	}
-	strcat(out, "){");
-	strcat(out, body);
-	strcat(out, "}");
-	return (out);	
-}
-
-
 
 
 char 		*strscat(char **strs, int from, int to, int s)
@@ -554,7 +605,7 @@ next:
 			strcat(macros, ft_generate_macro_function
 					(idz, macro_patterns[p][0], macro_patterns[p][1]));
 			strcat(macros, "\n");
-			strcat(parser, ft_generate_macro_parser(idz, macro_patterns[p][0]));
+			strcat(parser, ft_generate_macro_parser(idz, macro_patterns[p][0], macro_patterns[p][1]));
 			strcat(parser, "\n");
 			p += 1;
 		}
@@ -605,8 +656,7 @@ static char *cats(char *s, ...)								\n\
 int main(int ac, char **av)									\n\
 {															\n\
 	int		fd;												\n\
-	int		len;											\n\
-	char	*data;											\n\
+	char	*s;												\n\
 	int		i;												\n\
 	int		x;												\n\
 															\n\
@@ -616,14 +666,14 @@ int main(int ac, char **av)									\n\
 		return (1);											\n\
 	}														\n\
 	fd = open(av[1], O_RDONLY);								\n\
-	len = lseek(fd, 0, SEEK_END);							\n\
-	data = mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);		\n\
-	len = 0;												\n\
-	while (data[len])										\n\
+	i = lseek(fd, 0, SEEK_END);								\n\
+	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			\n\
+	i = 0;													\n\
+	while (s[i])											\n\
 	{														\n\
-		i = len;											\n\
-		/* %s	*/											\n\
-		len += 1;											\n\
+		x = 0;												\n\
+		 %s													\n\
+		i += 1;												\n\
 	}														\n\
 	return (0);												\n\
 }", header, macros, parser);

@@ -42,20 +42,27 @@ static char *cats(char *s, ...)
 															
 }															
 															
-char *macro_0(char *s,char *name){
+char *macro_0(int i, int x, char *s, char *name,char *__end)
+{
+
 	return (cat("Hello ", name));
+
 }
-char *macro_1(char *s,char *name1){
+
+char *macro_1(int i, int x, char *s, char *name1,char *__end)
+{
+
 	m_state_test += 1;
 	return(cat("Hello ", name1));
+
 }
+
 															
 															
 int main(int ac, char **av)									
 {															
 	int		fd;												
-	int		len;											
-	char	*data;											
+	char	*s;												
 	int		i;												
 	int		x;												
 															
@@ -65,70 +72,88 @@ int main(int ac, char **av)
 		return (1);											
 	}														
 	fd = open(av[1], O_RDONLY);								
-	len = lseek(fd, 0, SEEK_END);							
-	data = mmap(0, len, PROT_READ, MAP_PRIVATE, fd, 0);		
-	len = 0;												
-	while (data[len])										
+	i = lseek(fd, 0, SEEK_END);								
+	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			
+	i = 0;													
+	while (s[i])											
 	{														
-		i = len;											
-		/* 																
-					// ifndef names, define names as big enough charis						
-																							
+		x = 0;												
+		 																
+					char __end[1024];
+]																		
 					x = 0;																	
 					while (1)																
 					{																		
-						if (!s)															
+						if (!(s[i + x] == "HEllo"[x] ))															
+						{																	
+							i -= x;															
 							break ;															
-						if (!)															
-							callback(names);												
-							goto success ;													
+						}																	
+						if (!( s[i + x]))															
+						{																	
+							macro_0(i, x, s, __end);															
+							goto success;													
+						}																	
 						i += 1;																
 					}																		
 																			
-					// ifndef names, define names as big enough charis						
 																							
 					x = 0;																	
 					while (1)																
 					{																		
-						if (!name)															
+						if (!(name[x] = s[i + x] [x] ))															
+						{																	
+							i -= x;															
 							break ;															
-						if (!)															
-							callback(names);												
-							goto success ;													
+						}																	
+						if (!( s[i + x] != ';'))															
+						{																	
+							macro_0(i, x, s, __end);															
+							goto success;													
+						}																	
 						i += 1;																
 					}																		
 			)
 {macro_0()}
 																
-					// ifndef names, define names as big enough charis						
-																							
+					char __end[1024];
+]																		
 					x = 0;																	
 					while (1)																
 					{																		
-						if (!s)															
+						if (!(s[i + x] == "Hello"[x] 	))															
+						{																	
+							i -= x;															
 							break ;															
-						if (!)															
-							callback(names);												
-							goto success ;													
+						}																	
+						if (!( x ))															
+						{																	
+							macro_1(i, x, s, __end);															
+							goto success;													
+						}																	
 						i += 1;																
 					}																		
 																			
-					// ifndef names, define names as big enough charis						
 																							
 					x = 0;																	
 					while (1)																
 					{																		
-						if (!name1)															
+						if (!(name1[x] = c[i + x] 	] 	))															
+						{																	
+							i -= x;															
 							break ;															
-						if (!)															
-							callback(names);												
-							goto success ;													
+						}																	
+						if (!( c[i + x] != '!'))															
+						{																	
+							macro_1(i, x, s, __end);															
+							goto success;													
+						}																	
 						i += 1;																
 					}																		
 			)
 {macro_1()}
-	*/											
-		len += 1;											
+													
+		i += 1;												
 	}														
 	return (0);												
 }
