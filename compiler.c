@@ -449,8 +449,9 @@ flush_import:
 					else if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= ty - 1;
-						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 1);
-						body = strscat(token_history, macro_body_begin, macro_body_end, 1);
+						// TODO : full token history for macro with valid spaces
+						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 0);
+						body = strscat(token_history, macro_body_begin, macro_body_end, 0);
 						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", pattern, body);
 						sprintf(macro_patterns[macro_patterns_count][0], "%s", pattern);
 						sprintf(macro_patterns[macro_patterns_count][1], "%s", body);

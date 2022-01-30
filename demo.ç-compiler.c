@@ -8,8 +8,8 @@
 
  															
 															
-char *macro_0(char *testt42){return ( cat ( " Hello   " , test42 ) );}
-char *macro_1(char *s,char *name1){return ( cat ( " Hello   " , name1 ) );}
+char *macro_0(char *testt42){return(cat("Hello ",test42));}
+char *macro_1(char *s,char *name1){return(cat("Hello ",name1));}
 															
 															
 int main(int ac, char **av)									
@@ -28,12 +28,15 @@ int main(int ac, char **av)
 	{														
 		token_history[token_i]	= token;					
 		if (0) {(void)0;}									
-		else if (HEllo < testt42 >;)
+		else if (HEllo<testt42>;)
 {macro_0()}
-else if (< s [ i + x ] = = " Hello " [ x ] ; x > = 5 > < name1 [ x ] = c [ i + x ] ; c [ i + x ] ! = ' ! '>)
+else if (<s[i+x]=="Hello"[x];x>=5><name1[x]=c[i+x];c[i+x]!='!'>)
 {macro_1()}
 													
 		token_i += 1;										
+	}														
+	return (0);												
+}		token_i += 1;										
 	}														
 	return (0);												
 }												
