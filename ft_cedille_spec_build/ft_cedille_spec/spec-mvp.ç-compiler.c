@@ -11,13 +11,10 @@
 
  															
 															
-char *macro_0(){
-	return z;
-}
-char *macro_1(char *s,char *name){
+char *macro_0(char *s,char *name){
 	return (cat("Hello ", name));
 }
-char *macro_2(char *s,char *name1){
+char *macro_1(char *s,char *name1){
 	return(cat("Hello ", name1));
 }
 															
@@ -44,18 +41,16 @@ int main(int ac, char **av)
 		i = len;											
 		x = 0;												
 	/*	if (0) {(void)0;}									
-		else if ()
-{macro_0()}
-else if (
+		else if (
 	<s[i + x] == "HEllo"[x] ; x[i + x]>
 		<name[x] = s[i + x] ; x[i + x] != ';'>
 )
-{macro_1()}
+{macro_0()}
 else if (
 	<s[i + x] == "Hello"[x] 	; x >= 5>
 		<name1[x] = c[i + x] 	; c[i + x] != '!'>
 )
-{macro_2()}
+{macro_1()}
 	*/												
 		len += 1;											
 	}														

@@ -102,7 +102,7 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	int		p;
 	int		u;
 
-	printf("pattern=%s\n", pattern);
+	printf("pattern=%s - body=%s\n", pattern, body);
 	*out = 0;
 	strcat(out, "char *");
 	strcat(out, id);
@@ -196,13 +196,16 @@ static void mkpath(const char *dir)
     len = strlen(tmp);
     if (tmp[len - 1] == '/')
         tmp[len - 1] = 0;
-    for (p = tmp + 1; *p; p++)
+    p = tmp + 1;
+	while(*p)
+	{
         if (*p == '/') {
             *p = 0;
             mkdir(tmp, S_IRWXU);
             *p = '/';
         }
-  //  mkdir(tmp, S_IRWXU);
+		p += 1;
+	}
 }
 
 static int	parse(const char *path, int depth, const char *output_sufix, const char *output_prefix)
@@ -295,6 +298,12 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 	bracket_level				= 0;
 	brace_level					= 0;
 	compiler_i					= 0;
+	macro_pattern_begin 		= 0;
+	macro_pattern_end 			= 0;
+	macro_body_begin 			= 0;
+	macro_body_end 				= 0;
+	main_begin					= 0;
+	main_end 					= 0;
 	while ((token 				= get_next_token(fd, is_ctoken)))
 	{
 		token_len = strlen(token);
@@ -453,14 +462,6 @@ flush_import:
 				brace_level -= 1;
 				if (brace_level == 0)
 				{
-			//		if (macro_fn_begin)
-			//		{
-				//		macro_fn_end = fty;
-					//	body = strscat(full_token_history, macro_fn_begin, macro_fn_end, 1);
-					//	printf("Macro fn[%s]\n", body);
-				//		macro_fn_begin = 0;
-				//		macro_fn_end = 0;
-			//		}	
 					if (macro_pattern_begin && macro_body_begin)
 					{
 						macro_body_end 		= fty - 1;
@@ -502,10 +503,6 @@ next:
 				compiler[compiler_i++] = token;
 			is.in_compiler = 1;
 		}
-		else if (!depth && !is.in_compiler)
-		{
-		//	printf ("[%s] not in compiler\n", token);
-		}
 		ty += 1;
 		if (is.split)
 		{
@@ -514,7 +511,6 @@ next:
 			goto parse_token;
 		}
 	}
-#define str(X) #X
 	if (!depth)
 	{
 		macros[0] = 0;
@@ -541,7 +537,7 @@ next:
 		buffer[0] = 0;
 		sprintf(buffer, "%s/%s%s", output_prefix, path, output_sufix);
 		mkpath(buffer);
-		outfd = open(buffer, O_WRONLY | O_CREAT, 0644);
+		outfd = open(buffer, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		dprintf(outfd, "#include <fcntl.h>					\n\
 #include <stdio.h>											\n\
 #include <fcntl.h>											\n\
