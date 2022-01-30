@@ -9,6 +9,3 @@ steps:
 - [ ] keep replacing output string using macro definitions in the generated compiler
 - [ ] add a flag to compile the output string using clang or gcc
 
-todos:
-
-correct output prefix
