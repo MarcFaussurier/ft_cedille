@@ -367,7 +367,7 @@ parse_token:
 			{
 				is.in_compiler = 0;
 			}
-			else if (EQ(token, "rule"))
+			else if (EQ(token, "rule") && EQ(token_history[ty - 1], "macro"))
 			{
 				macro_pattern_begin = -1;
 			}
@@ -543,7 +543,31 @@ next:
 #include <fcntl.h>											\n\
 #include <sys/mman.h>										\n\
 #include <unistd.h>											\n\
+#include <stdarg.h>											\n\
+#include <string.h>											\n\
+#include <stdlib.h>											\n\
 %s 															\n\
+#undef cat													\n\
+#define cat(...) cats(__VA_ARGS__, 0)						\n\
+															\n\
+static char *cats(char *s, ...)								\n\
+{															\n\
+	char	*o;												\n\
+	int		i;												\n\
+	va_list	ap;												\n\
+															\n\
+	va_start(ap, s);										\n\
+	o = malloc(8096);										\n\
+	*o = 0;													\n\
+	while (s)												\n\
+	{														\n\
+		strcat(o, s);										\n\
+		s = va_arg(ap, char *);								\n\
+	}														\n\
+	va_end(ap);												\n\
+	return (o);												\n\
+															\n\
+}															\n\
 															\n\
 %s															\n\
 															\n\

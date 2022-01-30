@@ -1,11 +1,18 @@
+SRC=./ft_cedille_spec
+OUT=./ft_cedille_spec_build
+
 all:
-	cc -g compiler.c get_next_linev2/get_next_line.c get_next_linev2/get_next_line_utils.c -o çc
-	./çc -I./ft_cedille_spec/ ft_cedille_spec/spec-mvp.ç -e -compiler.c -o ft_cedille_spec_build
-	cc -g -I./ft_cedille_spec ft_cedille_spec_build/ft_cedille_spec/spec-mvp.ç-compiler.c -o \
-			ft_cedille_spec_build/ft_cedille_spec/spec-mvp.ç-compiler
-	./ft_cedille_spec_build/ft_cedille_spec/spec-mvp.ç-compiler ./ft_cedille_build/spec-mvp.ç -o \
-			ft_cedille_spec_build/ft_cedille_spec/spec-mvp.c
-	cc ft_cedille_build/ft_cedille_spec/spec-mvp.c -o\
-			ft_cedille_spec_build/spec-mvp.c ft_cedille_build/ft_cedille_spec/spec-mvp
+	cc  -g 	compiler.c \
+			get_next_linev2/get_next_line.c\
+			get_next_linev2/get_next_line_utils.c\
+		-o çc
+	./çc -I$(SRC) $(SRC)/spec-mvp.ç -e -compiler.c -o $(OUT)
+	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.ç-compiler.c -o \
+			$(OUT)/$(SRC)/spec-mvp.ç-compiler
+	$(OUT)/$(SRC)/spec-mvp.ç-compiler\
+		$(OUT)/$(SRC)/spec-mvp.ç -o \
+			$(OUR)/$(SRC)/spec-mvp.c
+	cc -I$(SRC) $(OUT)/$(SRC)/spec-mvp.c -o\
+			$(OUT)/$(SRC)/spec-mvp.c $(OUT)/$(SRC)/spec-mvp
 clean:
 	rm -rf çc çc.dSYM

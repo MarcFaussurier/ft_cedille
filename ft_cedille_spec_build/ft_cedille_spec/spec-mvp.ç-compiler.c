@@ -3,6 +3,9 @@
 #include <fcntl.h>											
 #include <sys/mman.h>										
 #include <unistd.h>											
+#include <stdarg.h>											
+#include <string.h>											
+#include <stdlib.h>											
 #import "ç"
 #import "spec-mvp2.ç"
 
@@ -10,6 +13,27 @@
 
 
  															
+#undef cat													
+#define cat(...) cats(__VA_ARGS__, 0)						
+															
+static char *cats(char *s, ...)								
+{															
+	char	*o;												
+	int		i;												
+	va_list	ap;												
+															
+	va_start(ap, s);										
+	o = malloc(8096);										
+	*o = 0;													
+	while (s)												
+	{														
+		strcat(o, s);										
+		s = va_arg(ap, char *);								
+	}														
+	va_end(ap);												
+	return (o);												
+															
+}															
 															
 char *macro_0(char *s,char *name){
 	return (cat("Hello ", name));
