@@ -9,6 +9,8 @@
 #import "ç"
 #import "spec-mvp2.ç"
 
+ int m_state_test = 0;
+
  int f(int x)
 {
 	return (x);
@@ -44,6 +46,7 @@ char *macro_0(char *s,char *name){
 	return (cat("Hello ", name));
 }
 char *macro_1(char *s,char *name1){
+	m_state_test += 1;
 	return(cat("Hello ", name1));
 }
 															
