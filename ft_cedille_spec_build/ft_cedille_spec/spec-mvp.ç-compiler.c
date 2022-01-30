@@ -68,19 +68,63 @@ int main(int ac, char **av)
 	while (data[len])										
 	{														
 		i = len;											
-		x = 0;												
-	/*	if (0) {(void)0;}									
-		else if (
-	<s[i + x] == "HEllo"[x] ; x[i + x]>
-		<name[x] = s[i + x] ; x[i + x] != ';'>
-)
+		/* 																
+					// ifndef names, define names as big enough charis						
+																							
+					x = 0;																	
+					while (1)																
+					{																		
+						if (!s)															
+							break ;															
+						if (!)															
+							callback(names);												
+							goto success ;													
+						i += 1;																
+					}																		
+																			
+					// ifndef names, define names as big enough charis						
+																							
+					x = 0;																	
+					while (1)																
+					{																		
+						if (!name)															
+							break ;															
+						if (!)															
+							callback(names);												
+							goto success ;													
+						i += 1;																
+					}																		
+			)
 {macro_0()}
-else if (
-	<s[i + x] == "Hello"[x] 	; x >= 5>
-		<name1[x] = c[i + x] 	; c[i + x] != '!'>
-)
+																
+					// ifndef names, define names as big enough charis						
+																							
+					x = 0;																	
+					while (1)																
+					{																		
+						if (!s)															
+							break ;															
+						if (!)															
+							callback(names);												
+							goto success ;													
+						i += 1;																
+					}																		
+																			
+					// ifndef names, define names as big enough charis						
+																							
+					x = 0;																	
+					while (1)																
+					{																		
+						if (!name1)															
+							break ;															
+						if (!)															
+							callback(names);												
+							goto success ;													
+						i += 1;																
+					}																		
+			)
 {macro_1()}
-	*/												
+	*/											
 		len += 1;											
 	}														
 	return (0);												

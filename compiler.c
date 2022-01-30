@@ -64,26 +64,55 @@ static int	is_name(char c)
 char		*ft_generate_macro_parser(char *id, char *pattern)
 {
 	char	*out = malloc(8096);
+	char	name1[8096];
+	char	cond1[8096];
+	char	cond2[8096];
 	int		i = 0;
+	int		y = 0;
+	char	*aspf;
 
-	strcat(out, "else if (");
 	while (pattern[i])
 	{
 		if (pattern[i] == '<')
 		{
 			i += 1;
+			y = 0;
+			cond1[0] = 0;
 			while (is_name(pattern[i]))
-				i += 1;
-			while (!is_name(pattern[i]) && pattern[i] != '>')
-				i += 1;
-			while (is_name((pattern[i])))
-			{
+			{	
+				cond1[y] = pattern[i];
+				y += 1;
 				i += 1;
 			}
+			cond1[y] = 0;
+			while (!is_name(pattern[i]) && pattern[i] != '>')
+				i += 1;
+			cond2[0] = 0;
+			y = 0;
+			while (is_name((pattern[i])))
+			{
+				cond2[y] = pattern[i];
+				i += 1;
+			}
+			cond2[y] = 0;
+			asprintf(&aspf, "																\n\
+					// ifndef names, define names as big enough charis						\n\
+																							\n\
+					x = 0;																	\n\
+					while (1)																\n\
+					{																		\n\
+						if (!%s)															\n\
+							break ;															\n\
+						if (!%s)															\n\
+							callback(names);												\n\
+							goto success ;													\n\
+						i += 1;																\n\
+					}																		\n\
+			", cond1, cond2);
+			strcat(out, aspf);
 		}
 		i += 1;
 	}
-	strcat(out, pattern);
 	strcat(out, ")\n{");
 	strcat(out, id);
 	strcat(out, "()");
@@ -593,9 +622,7 @@ int main(int ac, char **av)									\n\
 	while (data[len])										\n\
 	{														\n\
 		i = len;											\n\
-		x = 0;												\n\
-	/*	if (0) {(void)0;}									\n\
-		%s	*/												\n\
+		/* %s	*/											\n\
 		len += 1;											\n\
 	}														\n\
 	return (0);												\n\
