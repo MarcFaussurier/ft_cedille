@@ -365,10 +365,12 @@ parse_token:
 			}
 			else if (EQ(token, "macro"))
 			{
-				is.in_compiler = 0;
+		//		ty -= 1;
+				is.in_compiler = -1;
 			}
 			else if (EQ(token, "rule") && EQ(token_history[ty - 1], "macro"))
 			{
+				is.in_compiler = 0;
 				macro_pattern_begin = -1;
 			}
 			else if (EQ(token, "main") && EQ(token_history[ty - 1], "int"))

@@ -9,7 +9,12 @@
 #import "ç"
 #import "spec-mvp2.ç"
 
+ int f(int x)
+{
+	return (x);
+}
 
+ 
 
 
  															
