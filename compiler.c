@@ -258,7 +258,7 @@ static int	parse(const char *path, int depth, const char *output)
 	line 						= 1;
 	col 						= 1;
 	ty 							= 0;
-	fty							= 0;
+	fty							= -1;
 	is.import 					= 0;
 	is.quotes 					= 0;
 	is.quote 					= 0;
@@ -295,11 +295,7 @@ static int	parse(const char *path, int depth, const char *output)
 			goto parse_token;
 		continue;
 parse_token:
-		//if (token[token_len-1] == '\n')
-	//	{
-	//		compiler[compiler_i++]	 = token;
-			//printf("|\n");
-	//	}
+		full_token_history[++fty] = token;
 		if (!(!is.quotes && !is.quote && !is.comment && !is.ml_comment) 
 				 || !isspace(token[0]))
 		{
@@ -339,7 +335,7 @@ parse_token:
 			else if (EQ(token, "macro"))
 			{
 				is.in_compiler = 0;
-				macro_fn_begin = ty + 1;
+				macro_fn_begin = fty + 1;
 			}
 			else if (EQ(token, "rule"))
 			{
@@ -417,20 +413,20 @@ flush_import:
 				parenthesis_level += 1;
 
 				if (parenthesis_level == 1 && macro_pattern_begin == -1)
-					macro_pattern_begin = ty + 1;
+					macro_pattern_begin = fty + 1;
 			}
 			else if (EQ(token, ")"))
 			{
 				parenthesis_level -= 1;
 				if (!parenthesis_level && macro_pattern_begin && !macro_body_begin)
-					macro_pattern_end = ty - 1;
+					macro_pattern_end = fty - 1;
 			}
 			else if (EQ(token, "{"))
 			{
 				brace_level += 1;
 				if (brace_level == 1 && macro_pattern_begin && !macro_body_begin)
 				{
-					macro_body_begin = ty + 1;
+					macro_body_begin = fty + 1;
 				}
 			}
 			else if (EQ(token, "}"))
@@ -440,18 +436,18 @@ flush_import:
 				{
 					if (macro_fn_begin)
 					{
-						macro_fn_end = ty;
-						body = strscat(token_history, macro_fn_begin, macro_fn_end, 1);
+						macro_fn_end = fty;
+						body = strscat(full_token_history, macro_fn_begin, macro_fn_end, 1);
 						printf("Macro fn[%s]\n", body);
 						macro_fn_begin = 0;
 						macro_fn_end = 0;
 					}	
 					else if (macro_pattern_begin && macro_body_begin)
 					{
-						macro_body_end 		= ty - 1;
+						macro_body_end 		= fty - 1;
 						// TODO : full token history for macro with valid spaces
-						pattern = strscat(token_history, macro_pattern_begin, macro_pattern_end, 0);
-						body = strscat(token_history, macro_body_begin, macro_body_end, 0);
+						pattern = strscat(full_token_history, macro_pattern_begin, macro_pattern_end, 0);
+						body = strscat(full_token_history, macro_body_begin, macro_body_end, 0);
 						printf("Macro pattern[pattern='%s'\n\tbody='%s']\n", pattern, body);
 						sprintf(macro_patterns[macro_patterns_count][0], "%s", pattern);
 						sprintf(macro_patterns[macro_patterns_count][1], "%s", body);
