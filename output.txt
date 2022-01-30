@@ -1,13 +1,16 @@
-cc -g compiler.c get_next_linev2/get_next_line.c get_next_linev2/get_next_line_utils.c -o çc
-./çc -I./ft_cedille_spec/ ft_cedille_spec/spec-mvp.ç -e -compiler.c -o ft_cedille_spec_build
-output path	: ft_cedille_spec_build
+cc  -g 	compiler.c \
+			get_next_linev2/get_next_line.c\
+			get_next_linev2/get_next_line_utils.c\
+		-o çc
+./çc -I./ft_cedille_spec ./ft_cedille_spec/spec-mvp.ç -e -compiler.c -o ./ft_cedille_spec_build
+output path	: ./ft_cedille_spec_build
 output sufix	: -compiler.c
 includes[]	: /usr/include
 includes[]	: /usr/local/include
-includes[]	: ./ft_cedille_spec/
-sources[]	: ft_cedille_spec/spec-mvp.ç
+includes[]	: ./ft_cedille_spec
+sources[]	: ./ft_cedille_spec/spec-mvp.ç
 __________
-#parsing: ft_cedille_spec/spec-mvp.ç
+#parsing: ./ft_cedille_spec/spec-mvp.ç
 0:	#
 1:	import
 2:	"
@@ -23,7 +26,7 @@ __________
 #parsing: /usr/local/include/ç
 -- parse(/usr/local/include/ç) returned 4242
 __________
-#parsing: ./ft_cedille_spec//ç
+#parsing: ./ft_cedille_spec/ç
 0:	#
 1:	ifndef
 2:	FT_CEDILLE_H
@@ -73,22 +76,31 @@ __________
 46:	__LINE__
 47:	)
 48:	(
-49:	)
-50:	#
-51:	define
-52:	macro
-53:	#
-54:	define
-55:	cat
-56:	(
-57:	.
-58:	.
-59:	.
-60:	)
-61:	"
-62:	"
-63:	#
-64:	endif
+49:	int
+50:	i
+51:	,
+52:	int
+53:	x
+54:	,
+55:	char
+56:	*
+57:	s
+58:	)
+59:	#
+60:	define
+61:	macro
+62:	#
+63:	define
+64:	cat
+65:	(
+66:	.
+67:	.
+68:	.
+69:	)
+70:	"
+71:	"
+72:	#
+73:	endif
 __________
 5:	#
 6:	import
@@ -101,7 +113,7 @@ __________
 13:	"
 __________
 #parsing: spec-mvp2.ç
--- parse(./ft_cedille_spec//ç) returned 0
+-- parse(./ft_cedille_spec/ç) returned 0
 __________
 #parsing: /usr/include/spec-mvp2.ç
 -- parse(/usr/include/spec-mvp2.ç) returned 4242
@@ -109,7 +121,7 @@ __________
 #parsing: /usr/local/include/spec-mvp2.ç
 -- parse(/usr/local/include/spec-mvp2.ç) returned 4242
 __________
-#parsing: ./ft_cedille_spec//spec-mvp2.ç
+#parsing: ./ft_cedille_spec/spec-mvp2.ç
 0:	#
 1:	import
 2:	"
@@ -129,10 +141,6 @@ __________
 14:	z
 15:	;
 16:	}
-Macro pattern[pattern=''
-	body='
-	return z;
-']
 17:	macro
 18:	rule
 19:	(
@@ -327,15 +335,21 @@ main begins at 93
 122:	;
 123:	}
 pattern=
-pattern=
 	<s[i + x] == "HEllo"[x] ; x[i + x]>
 		<name[x] = s[i + x] ; x[i + x] != ';'>
+ - body=
+	return (cat("Hello ", name));
 
 pattern=
 	<s[i + x] == "Hello"[x] 	; x >= 5>
 		<name1[x] = c[i + x] 	; c[i + x] != '!'>
+ - body=
+	return(cat("Hello ", name1));
 
 __________
-file ft_cedille_spec_build/ft_cedille_spec/spec-mvp.ç-compiler.c generated!
-cc -g -I./ft_cedille_spec ft_cedille_spec_build/ft_cedille_spec/spec-mvp.ç-compiler.c -o \
-			ft_cedille_spec/spec-mvp.ç-compiler
+file ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler.c generated!
+cc -g -I./ft_cedille_spec ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler.c -o \
+			./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler
+./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler\
+		./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç -o \
+			/./ft_cedille_spec/spec-mvp.c
