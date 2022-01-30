@@ -1,3 +1,5 @@
+steps:
+
 - [X] spec https://github.com/MarcFaussurier/ft_cedille_spec 
 - [X] parse C code 
 - [X] parse macro, main and import syntaxes
@@ -6,3 +8,7 @@
 - [ ] copy everything but macro when macro no longer update the code
 - [ ] keep replacing output string using macro definitions in the generated compiler
 - [ ] add a flag to compile the output string using clang or gcc
+
+todos:
+
+correct output prefix

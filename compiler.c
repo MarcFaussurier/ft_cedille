@@ -1,7 +1,10 @@
+// ft :
 #include "get_next_linev2/get_next_line.h"
-#include "stdio.h"
+// syscalls :
 #include "unistd.h"
 #include "fcntl.h"
+// will be replaced by ft :
+#include "stdio.h"
 #include "string.h"
 #include "ctype.h"
 #include "stdarg.h"
@@ -32,7 +35,8 @@
 	errors += 1; 						\
 }
 #define c_tokens "#.*-=+/\\!;?:, {[(<>)]} '\" \t\n\v\f\r"
-#define default_output "-compiler.c"
+#define default_output_sufix "-compiler.c"
+#define default_output_path "./"
 
 int 		import_paths_count = 2;
 char 		import_paths[255][255] = { "/usr/include", "/usr/local/include"};
@@ -181,7 +185,7 @@ char 		*strscat(char **strs, int from, int to, int s)
 	return (o);
 }
 
-static int	parse(const char *path, int depth, const char *output)
+static int	parse(const char *path, int depth, const char *output_sufix)
 {
 	int		fd;
 	int		outfd;
@@ -382,7 +386,7 @@ flush_import:
 					import_end = 0;
 					if (is.local_import)
 					{
-						if (parse(import_path, depth + 1, output))
+						if (parse(import_path, depth + 1, output_sufix))
 						{
 							printf("-- parse(%s) returned %i\n", buffer, r);
 						}
@@ -395,7 +399,7 @@ flush_import:
 					{
 						buffer[0] = 0;
 						sprintf(buffer, "%s/%s", import_paths[p], import_path);
-						r = parse(buffer, depth + 1, output);
+						r = parse(buffer, depth + 1, output_sufix);
 						if (!r)
 						{
 							p = 0;
@@ -521,7 +525,7 @@ next:
 			p += 1;
 		}
 		buffer[0] = 0;
-		sprintf(buffer, "%s%s", path, output);
+		sprintf(buffer, "%s%s", path, output_sufix);
 		outfd = open(buffer, O_WRONLY | O_CREAT, 0644);
 		dprintf(outfd, "#include <fcntl.h>					\n\
 #include <stdio.h>											\n\
@@ -573,7 +577,8 @@ int			main(int ac, char **av)
 	int			q;
 	int			errors;
 	char		error[255];
-	const char	*output;
+	const char	*output_path;
+	const char	*output_sufix;
 
 	if (ac < 2)
 	{
@@ -582,7 +587,8 @@ int			main(int ac, char **av)
 	}
 	errors 			= 0;
 	i 				= 1;
-	output 			= default_output;
+	output_path 	= default_output_path;
+	output_sufix 	= default_output_sufix;
 	while (i < ac)
 	{
 		if (av[i][0] == '-')
@@ -603,10 +609,22 @@ int			main(int ac, char **av)
 
 				if (ac < i)
 				{	
-					CMD_ERROR("missing output file, default to '%s'", default_output);
+					CMD_ERROR("missing output path, default to '%s'", default_output_path);
 				}
 				else
-					output = av[i +  1];
+					output_path = av[i +  1];
+				i += 2;
+				continue ;
+			}
+			else if (av[i][1] == 'e' && !av[i][2])
+			{
+
+				if (ac < i)
+				{	
+					CMD_ERROR("missing output sufix, default to '%s'", default_output_sufix);
+				}
+				else
+					output_sufix = av[i +  1];
 				i += 2;
 				continue ;
 			}
@@ -632,7 +650,8 @@ int			main(int ac, char **av)
 
 		i += 1;
 	}
-	printf("output sufix\t: %s\n", output);
+	printf("output path\t: %s\n", output_path);
+	printf("output sufix\t: %s\n", output_sufix);
 	p = 0;
 	while (p < import_paths_count)
 		printf("includes[]\t: %s\n", import_paths[p++]);
@@ -640,14 +659,14 @@ int			main(int ac, char **av)
 	while (p < sources_count)
 	{
 		printf("sources[]\t: %s\n", sources[p]);
-		r = parse(sources[p], 0, output);
+		r = parse(sources[p], 0, output_sufix);
 		if (r == 4242)
 		{
 			CMD_ERROR("no such file or directory: '%s'", sources[p]);
 		}
 		else
 		{	
-			printf("file %s%s generated!\n", sources[p], output);
+			printf("file %s/%s%s generated!\n", output_path, sources[p], output_sufix);
 		}
 		macro_patterns_count = 0;
 		references_count = 0;
