@@ -1,3 +1,6 @@
 [submodule "get_next_linev2"]
 	path = get_next_linev2
 	url = https://github.com/MarcFaussurier/get_next_linev2
+[submodule "ft_cedille_spec"]
+	path = ft_cedille_spec
+	url = https://github.com/MarcFaussurier/ft_cedille_spec.git
