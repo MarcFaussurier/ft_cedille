@@ -12,7 +12,7 @@
  															
 															
 char *macro_0(){
-	return x;
+	return z;
 }
 char *macro_1(char *s,char *name){
 	return (cat("Hello ", name));
