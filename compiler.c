@@ -243,11 +243,11 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 						if (!(%s))															\n\
 						{																	\n\
 							r = %s(%s);														\n\
-							goto success;													\n\
+							%s																\n\
 						}																	\n\
 						i += 1;																\n\
 					}																		\n\
-			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2, id, ft_generate_macro_labels(id, pattern, body, 2));
+			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2, id, ft_generate_macro_labels(id, pattern, body, 2), strchr(pattern + i, '<') != 0 ? "break;" : "goto success;");
 			strcat(out, aspf);
 		}
 		i += 1;
@@ -679,14 +679,14 @@ static char *cats(char *s, ...)								\n\
 															\n\
 int main(int ac, char **av)									\n\
 {															\n\
-	int		out_fd;											\n\	
+	int		out_fd;											\n\
 	int		fd;												\n\
 	char	*s;												\n\
 	int		i;												\n\
 	int		x;												\n\
 	char	*o;												\n\
-	char	buffer[8096];									\n\		
-	char	*r;												\n\		
+	char	buffer[8096];									\n\
+	char	*r;												\n\
 															\n\
 	out_fd = open(\"test.txt\", O_WRONLY | O_CREAT | O_TRUNC, 0644);\n\
 	if (ac < 2)												\n\
@@ -709,7 +709,7 @@ int main(int ac, char **av)									\n\
 			goto end;										\n\
 		failure:											\n\
 			strncpy(buffer, s + i, x);						\n\
-			dprintf(out_fd, \"%%s\", buffer);				\n\	
+			dprintf(out_fd, \"%%s\", buffer);				\n\
 			i += x;											\n\
 		end:												\n\
 		i += 1;												\n\

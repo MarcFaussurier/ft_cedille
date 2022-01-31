@@ -97,7 +97,7 @@ char __end[1024];*__end = 0;
 						if (!( s[i + x]))															
 						{																	
 							r = macro_0(i, x, s, name, __end);														
-							goto success;													
+							break;																
 						}																	
 						i += 1;																
 					}																		
@@ -114,7 +114,7 @@ char __end[1024];*__end = 0;
 						if (!( s[i + x] != ';'))															
 						{																	
 							r = macro_0(i, x, s, name, __end);														
-							goto success;													
+							goto success;																
 						}																	
 						i += 1;																
 					}																		
@@ -134,7 +134,7 @@ char __end[1024];*__end = 0;
 						if (!( x ))															
 						{																	
 							r = macro_1(i, x, s, name1, __end);														
-							goto success;													
+							break;																
 						}																	
 						i += 1;																
 					}																		
@@ -151,7 +151,7 @@ char __end[1024];*__end = 0;
 						if (!( s[i + x] != '!'))															
 						{																	
 							r = macro_1(i, x, s, name1, __end);														
-							goto success;													
+							goto success;																
 						}																	
 						i += 1;																
 					}																		
