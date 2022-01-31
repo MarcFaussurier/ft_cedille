@@ -92,6 +92,7 @@ int main(int ac, char **av)
 	char	buffer[8096];									
 	char	*r;												
 	int		success;										
+	char	*macro_name;									
 															
 	if (ac < 3)												
 	{														
@@ -115,9 +116,9 @@ int main(int ac, char **av)
 	i = lseek(fd, 0, SEEK_END);								
 	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			
 	i = 0;													
+	macro_name = "marvin";								
 	while (s[i])											
 	{														
-		x = 0;												
 		 success = 1;																
 					char __end[1024];*__end = 0;
 																		
@@ -126,6 +127,7 @@ int main(int ac, char **av)
 					{																		
 						if (!(s[i+x] == 0 ))															
 						{																	
+							macro_name = "macro_0";											
 							success = 0;													
 							break ;															
 						}																	
@@ -147,6 +149,7 @@ success = 1;
 					{																		
 						if (!(s[i + x] == "Hello"[x] 	))															
 						{																	
+							macro_name = "macro_1";											
 							success = 0;													
 							break ;															
 						}																	
@@ -164,7 +167,7 @@ success = 1;
 													
 		goto failure;										
 		success:											
-			printf("success\n!");						
+			printf("1 macro applied [id=%s i=%d x=%d on=%.*s].\n", macro_name, i, x, x, s + i);
 			i += x;											
 			dprintf(out_fd, "%s", r);					
 			goto end;										

@@ -262,6 +262,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 					{																		\n\
 						if (!(%s))															\n\
 						{																	\n\
+							macro_name = \"%s\";											\n\
 							success = 0;													\n\
 							break ;															\n\
 						}																	\n\
@@ -271,7 +272,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 						}																	\n\
 						x += 1;																\n\
 					}																		\n\
-			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2);
+			", ft_generate_macro_labels(id, pattern, body, 1), cond1, id, cond2);
 			strcat(out, aspf);
 		}
 
@@ -745,6 +746,7 @@ int main(int ac, char **av)									\n\
 	char	buffer[8096];									\n\
 	char	*r;												\n\
 	int		success;										\n\
+	char	*macro_name;									\n\
 															\n\
 	if (ac < 3)												\n\
 	{														\n\
@@ -768,13 +770,13 @@ int main(int ac, char **av)									\n\
 	i = lseek(fd, 0, SEEK_END);								\n\
 	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			\n\
 	i = 0;													\n\
+	macro_name = \"marvin\";								\n\
 	while (s[i])											\n\
 	{														\n\
-		x = 0;												\n\
 		 %s													\n\
 		goto failure;										\n\
 		success:											\n\
-			printf(\"success\\n!\");						\n\
+			printf(\"1 macro applied [id=%%s i=%%d x=%%d on=%%.*s].\\n\", macro_name, i, x, x, s + i);\n\
 			i += x;											\n\
 			dprintf(out_fd, \"%%s\", r);					\n\
 			goto end;										\n\
