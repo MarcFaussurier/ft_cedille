@@ -6,6 +6,7 @@
 #include <stdarg.h>											
 #include <string.h>											
 #include <sys/stat.h>										
+#define str(x) #x											
 #include <stdlib.h>											
 #import "ç"
 #import "spec-mvp2.ç"
@@ -17,6 +18,12 @@
 {
 	return (x);
 }
+
+/*
+	<continue while ; succeed on ;>
+*/
+
+// test
 
  
 
@@ -66,13 +73,13 @@ static void mkpath(const char *dir)
 		p += 1;												
 	}														
 }															
-char *macro_0(int i, int x, char *s,char *__end){
+char *macro_0(int i, int x, int y, char *s,char *__end){
 
 	return (cat("!! "));
 
 }
 
-char *macro_1(int i, int x, char *s,char *__end){
+char *macro_1(int i, int x, int y, char *s,char *__end){
 
 	m_state_test += 1;
 	return(cat("Good night !:)"));
@@ -88,6 +95,7 @@ int main(int ac, char **av)
 	char	*s;												
 	int		i;												
 	int		x;												
+	int		y;												
 	char	*o;												
 	char	buffer[8096];									
 	char	*r;												
@@ -119,10 +127,10 @@ int main(int ac, char **av)
 	macro_name = "marvin";								
 	while (s[i])											
 	{														
-		 success = 1;																
+		 success = 1;x=0;																
 					char __end[1024];*__end = 0;
 																		
-					x = 0;																	
+					y = 0;																	
 					while (success)															
 					{																		
 						if (!(s[i+x] == 0 ))															
@@ -131,38 +139,64 @@ int main(int ac, char **av)
 							success = 0;													
 							break ;															
 						}																	
-						if (!( 0 ))															
+						if ( 0 )																
 						{																	
+							y += 1;															
+							printf("%s succeed macro_0 %i!\n", str( 0 ), i);					
 							break ;															
 						}																	
-						x += 1;																
+						y += 1;																
 					}																		
-			if (success)									
-	{															
-		r = macro_0(i, x, s, __end);														
-		goto success;																
+					x += y;																	
+			if (success)															
+	{																						
+		r = macro_0(i, x, y, s, __end);																			
+		goto success;																		
 	}
-success = 1;																
+success = 1;x=0;																
 																							
-					x = 0;																	
+					y = 0;																	
 					while (success)															
 					{																		
-						if (!(s[i + x] == "Hello"[x] 	))															
+						if (!(s[i + x + y] == "Hello"[y]			))															
 						{																	
 							macro_name = "macro_1";											
 							success = 0;													
 							break ;															
 						}																	
-						if (!( 	x < 4	))															
+						if ( 	y == 4 				)																
 						{																	
+							y += 1;															
+							printf("%s succeed macro_1 %i!\n", str( 	y == 4 				), i);					
 							break ;															
 						}																	
-						x += 1;																
+						y += 1;																
 					}																		
-			if (success)									
-	{															
-		r = macro_1(i, x, s, __end);														
-		goto success;																
+					x += y;																	
+																			
+																							
+					y = 0;																	
+					while (success)															
+					{																		
+						if (!(s[i + x + y] == " bb"[y]			))															
+						{																	
+							macro_name = "macro_1";											
+							success = 0;													
+							break ;															
+						}																	
+						if (	y == 1				)																
+						{																	
+							y += 1;															
+							printf("%s succeed macro_1 %i!\n", str(	y == 1				), i);					
+							break ;															
+						}																	
+						y += 1;																
+					}																		
+					x += y;																	
+			if (success)															
+	{																						
+		r = macro_1(i, x, y, s, __end);																			
+		goto success;																		
 	}
 													
 		goto failure;										

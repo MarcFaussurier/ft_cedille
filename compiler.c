@@ -95,16 +95,16 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 	passed_labels[0] = "";
 	*out = 0;
 	if (mode == 2)
-		strcat(out, "i, x, s, ");
+		strcat(out, "i, x, y, s, ");
 	else if (mode == 0)
-		strcat(out, "int i, int x, char *s,");
+		strcat(out, "int i, int x, int y, char *s,");
 	i = 0;
 	while (pattern[i])
 	{
 		if (pattern[i] == '<')
 		{
 			i += 1;
-			while (isspace(pattern[i]))
+			while (!is_name(pattern[i]))
 				i += 1;
 			u = 0;
 			while (is_name(pattern[i]))
@@ -112,7 +112,10 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 
 			labels[label_count][u] = 0;
 			
-			if (!EQ(labels[label_count], "s") && !EQ(labels[label_count], "x") && !EQ(labels[label_count], "i"))
+			if (!EQ(labels[label_count], "s") && 
+					!EQ(labels[label_count], "x")  && 
+					!EQ(labels[label_count], "y")  && 
+					!EQ(labels[label_count], "i"))
 			{
 
 				if (mode == 0)
@@ -219,7 +222,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 	int		last;
 
 
-	asprintf(&aspf, "success = 1;");
+	asprintf(&aspf, "success = 1;x=0;");
 	strcat(out, aspf);
 	while (pattern[i])
 	{
@@ -257,7 +260,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 			cond2[y] = 0;
 			asprintf(&aspf, "																\n\
 					%s																		\n\
-					x = 0;																	\n\
+					y = 0;																	\n\
 					while (success)															\n\
 					{																		\n\
 						if (!(%s))															\n\
@@ -266,23 +269,26 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 							success = 0;													\n\
 							break ;															\n\
 						}																	\n\
-						if (!(%s))															\n\
+						if (%s)																\n\
 						{																	\n\
+							y += 1;															\n\
+							printf(\"%%s succeed %s %%i!\\n\", str(%s), i);					\n\
 							break ;															\n\
 						}																	\n\
-						x += 1;																\n\
+						y += 1;																\n\
 					}																		\n\
-			", ft_generate_macro_labels(id, pattern, body, 1), cond1, id, cond2);
+					x += y;																	\n\
+			", ft_generate_macro_labels(id, pattern, body, 1), cond1, id, cond2, id, cond2);
 			strcat(out, aspf);
 		}
 
 		i += 1;
 	}
 
-	asprintf(&aspf, "if (success)									\n\
-	{															\n\
-		r = %s(%s);														\n\
-		goto success;																\n\
+	asprintf(&aspf, "if (success)															\n\
+	{																						\n\
+		r = %s(%s);																			\n\
+		goto success;																		\n\
 	}", id, ft_generate_macro_labels(id, pattern, body, 2));
 	strcat(out, aspf);
 
@@ -490,10 +496,10 @@ parse_token:
 		else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "/") &&
 				!is.quote && !is.quotes)
 			is.comment			= 1;
-		else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "*") &&
+		else if (ty && EQ(token_history[ty - 1], "/") && EQ(token, "*") &&
 				!is.quote && !is.quotes)
 			is.ml_comment		= 1;
-		else if (EQ(token, "*") && ty && EQ(token_history[ty - 1], "/") &&
+		else if (EQ(token, "/") && ty && EQ(token_history[ty - 1], "*") &&
 				!is.quote && !is.quotes)
 			is.ml_comment		= 0;
 		else if (!is.quotes && !is.quote && !is.comment && !is.ml_comment)
@@ -687,6 +693,7 @@ next:
 #include <stdarg.h>											\n\
 #include <string.h>											\n\
 #include <sys/stat.h>										\n\
+#define str(x) #x											\n\
 #include <stdlib.h>											\n\
 %s 															\n\
 #undef cat													\n\
@@ -742,6 +749,7 @@ int main(int ac, char **av)									\n\
 	char	*s;												\n\
 	int		i;												\n\
 	int		x;												\n\
+	int		y;												\n\
 	char	*o;												\n\
 	char	buffer[8096];									\n\
 	char	*r;												\n\

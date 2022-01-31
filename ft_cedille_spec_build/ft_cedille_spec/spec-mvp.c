@@ -9,9 +9,17 @@ macro int f(int x)
 	return (x);
 }
 
+/*
+	<continue while ; succeed on ;>
+*/
+
+// test
+
 macro rule
 (
-	<	 s[i + x] == "Good night !:)"[x] 	; 	x < 4	;>
+	<	 	s[i + x + y] == "Hello"[y]			; 	y == 4 				;>
+		< 	s[i + x + y] == " bb"[y]			;	y == 1				;>
+
 )
 {
 	m_state_test += 1;
@@ -20,6 +28,6 @@ macro rule
 
 int main(int ac, char **av)
 {
-	printf ("Good night !:) bb! Hallo joe; Hallo ddd;");
+	printf ("Good night !:)! Hallo joe; Hallo ddd;");
 	return (0);
 }
