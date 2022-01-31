@@ -779,6 +779,7 @@ int main(int ac, char **av)									\n\
 		 %s													\n\
 		goto failure;										\n\
 		success:											\n\
+			printf(\"success\\n!\");						\n\
 			i += x;											\n\
 			dprintf(out_fd, \"%%s\", r);					\n\
 			goto end;										\n\

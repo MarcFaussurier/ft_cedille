@@ -131,7 +131,7 @@ char __end[1024];*__end = 0;
 							success = 0;													
 							break ;															
 						}																	
-						if (!( x < 6  ))															
+						if (!( x < 5  ))															
 						{																	
 							break ;															
 						}																	
@@ -170,7 +170,7 @@ success = 1;
 							success = 0;													
 							break ;															
 						}																	
-						if (!( x < 6 ))															
+						if (!( x < 4 ))															
 						{																	
 							break ;															
 						}																	
@@ -200,6 +200,7 @@ success = 1;
 													
 		goto failure;										
 		success:											
+			printf("success\n!");						
 			i += x;											
 			dprintf(out_fd, "%s", r);					
 			goto end;										
