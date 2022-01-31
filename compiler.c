@@ -303,7 +303,8 @@ static void mkpath(const char *dir)
     p = tmp + 1;
 	while(*p)
 	{
-        if (*p == '/') {
+        if (*p == '/')
+		{
             *p = 0;
             mkdir(tmp, S_IRWXU);
             *p = '/';
@@ -651,6 +652,7 @@ next:
 #include <unistd.h>											\n\
 #include <stdarg.h>											\n\
 #include <string.h>											\n\
+#include <sys/stat.h>										\n\
 #include <stdlib.h>											\n\
 %s 															\n\
 #undef cat													\n\
@@ -675,6 +677,28 @@ static char *cats(char *s, ...)								\n\
 															\n\
 }															\n\
 															\n\
+static void mkpath(const char *dir)							\n\
+{															\n\
+    char tmp[256];											\n\
+    char *p = NULL;											\n\
+    size_t len;												\n\
+															\n\
+    snprintf(tmp, sizeof(tmp),\"%%s\",dir);					\n\
+    len = strlen(tmp);										\n\
+    if (tmp[len - 1] == '/')								\n\
+        tmp[len - 1] = 0;									\n\
+    p = tmp + 1;											\n\
+	while(*p)												\n\
+	{														\n\
+        if (*p == '/')										\n\
+		{													\n\
+            *p = 0;											\n\
+            mkdir(tmp, S_IRWXU);							\n\
+            *p = '/';										\n\
+        }													\n\
+		p += 1;												\n\
+	}														\n\
+}															\n\
 %s															\n\
 															\n\
 int main(int ac, char **av)									\n\
@@ -688,13 +712,25 @@ int main(int ac, char **av)									\n\
 	char	buffer[8096];									\n\
 	char	*r;												\n\
 															\n\
-	out_fd = open(\"test.txt\", O_WRONLY | O_CREAT | O_TRUNC, 0644);\n\
-	if (ac < 2)												\n\
+	if (ac < 3)												\n\
 	{														\n\
-		printf(\"Usage: ./%%s <source.ç>\\n\", av[0]);		\n\
+		printf(\"Usage: ./%%s <source.ç> <dest.c>\\n\", av[0]);\n\
 		return (1);											\n\
 	}														\n\
+	mkpath(av[2]);											\n\
+	out_fd = open(av[2], O_WRONLY | O_CREAT | O_TRUNC, 0644);\n\
+	printf(\"out_file=%%s fd=%%i\\n\", av[2], out_fd);		\n\
+	if (out_fd < 0)											\n\
+	{														\n\
+		printf(\"Error - unable to open output file '%%s'\\n\", av[2]);\n\
+	}														\n\
 	fd = open(av[1], O_RDONLY);								\n\
+	printf(\"source_file=%%s fd=%%i\\n\", av[1], fd);		\n\
+	if (fd < 0)												\n\
+	{														\n\
+		printf(\"Error - unable to open source file '%%s'\\n\", av[1]);\n\
+		return (1);											\n\
+	}														\n\
 	i = lseek(fd, 0, SEEK_END);								\n\
 	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			\n\
 	i = 0;													\n\

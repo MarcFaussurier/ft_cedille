@@ -5,6 +5,7 @@
 #include <unistd.h>											
 #include <stdarg.h>											
 #include <string.h>											
+#include <sys/stat.h>										
 #include <stdlib.h>											
 #import "ç"
 #import "spec-mvp2.ç"
@@ -42,6 +43,28 @@ static char *cats(char *s, ...)
 															
 }															
 															
+static void mkpath(const char *dir)							
+{															
+    char tmp[256];											
+    char *p = NULL;											
+    size_t len;												
+															
+    snprintf(tmp, sizeof(tmp),"%s",dir);					
+    len = strlen(tmp);										
+    if (tmp[len - 1] == '/')								
+        tmp[len - 1] = 0;									
+    p = tmp + 1;											
+	while(*p)												
+	{														
+        if (*p == '/')										
+		{													
+            *p = 0;											
+            mkdir(tmp, S_IRWXU);							
+            *p = '/';										
+        }													
+		p += 1;												
+	}														
+}															
 char *macro_0(int i, int x, char *s,char *name,char *__end){
 
 	return (cat("Hello ", name));
@@ -68,13 +91,25 @@ int main(int ac, char **av)
 	char	buffer[8096];									
 	char	*r;												
 															
-	out_fd = open("test.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (ac < 2)												
+	if (ac < 3)												
 	{														
-		printf("Usage: ./%s <source.ç>\n", av[0]);		
+		printf("Usage: ./%s <source.ç> <dest.c>\n", av[0]);
 		return (1);											
 	}														
+	mkpath(av[2]);											
+	out_fd = open(av[2], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	printf("out_file=%s fd=%i\n", av[2], out_fd);		
+	if (out_fd < 0)											
+	{														
+		printf("Error - unable to open output file '%s'\n", av[2]);
+	}														
 	fd = open(av[1], O_RDONLY);								
+	printf("source_file=%s fd=%i\n", av[1], fd);		
+	if (fd < 0)												
+	{														
+		printf("Error - unable to open source file '%s'\n", av[1]);
+		return (1);											
+	}														
 	i = lseek(fd, 0, SEEK_END);								
 	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			
 	i = 0;													
