@@ -59,11 +59,16 @@ char *macro_1(int i, int x, char *s,char *name1,char *__end){
 															
 int main(int ac, char **av)									
 {															
+	int		out_fd;											
 	int		fd;												
 	char	*s;												
 	int		i;												
 	int		x;												
+	char	*o;												
+	char	buffer[8096];									
+	char	*r;												
 															
+	out_fd = open("test.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (ac < 2)												
 	{														
 		printf("Usage: ./%s <source.ç>\n", av[0]);		
@@ -91,7 +96,7 @@ char __end[1024];*__end = 0;
 						}																	
 						if (!( s[i + x]))															
 						{																	
-							macro_0(i, x, s, name, __end);															
+							r = macro_0(i, x, s, name, __end);														
 							goto success;													
 						}																	
 						i += 1;																
@@ -108,7 +113,7 @@ char __end[1024];*__end = 0;
 						}																	
 						if (!( s[i + x] != ';'))															
 						{																	
-							macro_0(i, x, s, name, __end);															
+							r = macro_0(i, x, s, name, __end);														
 							goto success;													
 						}																	
 						i += 1;																
@@ -128,7 +133,7 @@ char __end[1024];*__end = 0;
 						}																	
 						if (!( x ))															
 						{																	
-							macro_1(i, x, s, name1, __end);															
+							r = macro_1(i, x, s, name1, __end);														
 							goto success;													
 						}																	
 						i += 1;																
@@ -145,13 +150,23 @@ char __end[1024];*__end = 0;
 						}																	
 						if (!( s[i + x] != '!'))															
 						{																	
-							macro_1(i, x, s, name1, __end);															
+							r = macro_1(i, x, s, name1, __end);														
 							goto success;													
 						}																	
 						i += 1;																
 					}																		
 			
 													
+		goto failure;										
+		success:											
+			i += x;											
+			dprintf(out_fd, "%s", r);					
+			goto end;										
+		failure:											
+			strncpy(buffer, s + i, x);						
+			dprintf(out_fd, "%s", buffer);				
+			i += x;											
+		end:												
 		i += 1;												
 	}														
 	return (0);												

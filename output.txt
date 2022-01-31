@@ -2,7 +2,7 @@ cc  -g 	compiler.c \
 			get_next_linev2/get_next_line.c\
 			get_next_linev2/get_next_line_utils.c\
 		-o çc
-valgrind ./çc -I./ft_cedille_spec ./ft_cedille_spec/spec-mvp.ç -e -compiler.c -o ./ft_cedille_spec_build
+./çc -I./ft_cedille_spec ./ft_cedille_spec/spec-mvp.ç -e -compiler.c -o ./ft_cedille_spec_build
 output path	: ./ft_cedille_spec_build
 output sufix	: -compiler.c
 includes[]	: /usr/include
