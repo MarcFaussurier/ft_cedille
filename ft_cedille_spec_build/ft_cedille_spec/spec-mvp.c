@@ -11,19 +11,15 @@ macro int f(int x)
 
 macro rule
 (
-	<; s[i + x] == "Hello Hello"[x] 	; x < 4 ;>
-		<; name1[x] = s[i + x] 	; (s[i + x] !:))
-= '!' || (name1[x] = 0)) ; >
+	<	 s[i + x] == "Good night !:)"[x] 	; 	x < 4	;>
 )
 {
 	m_state_test += 1;
-	return(cat("Hello Hello ", name1, "!:))
-:))\n"));
+	return(cat("Good night !:)"));
 }
 
 int main(int ac, char **av)
 {
-	printf ("Hello Hello aa, bb!:))
- Hallo joe;");
+	printf ("Good night !:) bb! Hallo joe; Hallo ddd;");
 	return (0);
 }

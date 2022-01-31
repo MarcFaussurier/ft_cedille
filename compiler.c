@@ -105,19 +105,13 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 		{
 			i += 1;
 			while (isspace(pattern[i]))
-			{
-				i += 1;
-			}
-			if (pattern[i] != ';')
-				continue ;
-			else
 				i += 1;
 			u = 0;
-			while (isspace(pattern[i]))
-				i += 1;
 			while (is_name(pattern[i]))
 				labels[label_count][u++] = pattern[i++];
+
 			labels[label_count][u] = 0;
+			
 			if (!EQ(labels[label_count], "s") && !EQ(labels[label_count], "x") && !EQ(labels[label_count], "i"))
 			{
 
@@ -164,7 +158,14 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 				}
 
 			}
-
+			while (!(pattern[i] == ';'))
+					i += 1;
+			i += 1;
+			while (!(pattern[i] == ';'))
+					i += 1;
+			i += 1;
+			while (!(pattern[i] == '>'))
+					i += 1;
 		}
 		i += 1;
 	}
@@ -226,12 +227,6 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 		{
 			i += 1;
 			while (isspace(pattern[i]))
-			{
-				i += 1;
-			}
-			if (pattern[i] != ';')
-				continue ;
-			else
 				i += 1;
 			y = 0;
 			cond1[0] = 0;
@@ -255,7 +250,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 			last = 1;
 			while (pattern[i + x] && pattern[i + x] != ')' )
 			{
-				if (pattern[i + x] == '<' && pattern[i + x + 1] == ';')
+				if (pattern[i + x] == ';' && pattern[i + x + 1] == '>')
 					last = 0;
 				x += 1;
 			}

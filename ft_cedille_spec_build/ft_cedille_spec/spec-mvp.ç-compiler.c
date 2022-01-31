@@ -66,16 +66,16 @@ static void mkpath(const char *dir)
 		p += 1;												
 	}														
 }															
-char *macro_0(int i, int x, char *s,char *name,char *__end){
+char *macro_0(int i, int x, char *s,char *__end){
 
-	return (cat("Hello ", name));
+	return (cat("!! "));
 
 }
 
-char *macro_1(int i, int x, char *s,char *name1,char *__end){
+char *macro_1(int i, int x, char *s,char *__end){
 
 	m_state_test += 1;
-	return(cat("Hello ", name1, "!:))\n"));
+	return(cat("Good night !:)"));
 
 }
 
@@ -119,35 +119,17 @@ int main(int ac, char **av)
 	{														
 		x = 0;												
 		 success = 1;																
-					char name[1024];
-*name = 0;
-char __end[1024];*__end = 0;
+					char __end[1024];*__end = 0;
 																		
 					x = 0;																	
 					while (success)															
 					{																		
-						if (!( s[i + x] == "Hallo"[x] ))															
+						if (!(s[i+x] == 0 ))															
 						{																	
 							success = 0;													
 							break ;															
 						}																	
-						if (!( x < 5  ))															
-						{																	
-							break ;															
-						}																	
-						x += 1;																
-					}																		
-																			
-																							
-					x = 0;																	
-					while (success)															
-					{																		
-						if (!( name[x] = s[i + x] ))															
-						{																	
-							success = 0;													
-							break ;															
-						}																	
-						if (!( s[i + x] != semicolon ))															
+						if (!( 0 ))															
 						{																	
 							break ;															
 						}																	
@@ -155,38 +137,20 @@ char __end[1024];*__end = 0;
 					}																		
 			if (success)									
 	{															
-		r = macro_0(i, x, s, name, __end);														
+		r = macro_0(i, x, s, __end);														
 		goto success;																
 	}
 success = 1;																
-					char name1[1024];
-*name1 = 0;
-																		
-					x = 0;																	
-					while (success)															
-					{																		
-						if (!( s[i + x] == "Hello"[x] 	))															
-						{																	
-							success = 0;													
-							break ;															
-						}																	
-						if (!( x < 4 ))															
-						{																	
-							break ;															
-						}																	
-						x += 1;																
-					}																		
-																			
 																							
 					x = 0;																	
 					while (success)															
 					{																		
-						if (!( name1[x] = s[i + x] 	))															
+						if (!(s[i + x] == "Hello"[x] 	))															
 						{																	
 							success = 0;													
 							break ;															
 						}																	
-						if (!( (s[i + x] != '!' || (name1[x] = 0)) ))															
+						if (!( 	x < 4	))															
 						{																	
 							break ;															
 						}																	
@@ -194,7 +158,7 @@ success = 1;
 					}																		
 			if (success)									
 	{															
-		r = macro_1(i, x, s, name1, __end);														
+		r = macro_1(i, x, s, __end);														
 		goto success;																
 	}
 													
