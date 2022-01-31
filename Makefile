@@ -9,8 +9,19 @@ all:
 	./çc -I$(SRC) $(SRC)/spec-mvp.ç -e -compiler.c -o $(OUT)
 	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.ç-compiler.c -o \
 			$(OUT)/$(SRC)/spec-mvp.ç-compiler
-	valgrind $(OUT)/$(SRC)/spec-mvp.ç-compiler\
+#TODO: uncomment bellow for using macrow within macro functions and reccursive macro patterns within compiler
+#REPAT
+#{
+#	$(OUT)/$(SRC)/spec-mvp.ç-compiler\
+#			$(OUT)/$(SRC)/spec-mvp.ç-compiler.c $(OUT)/$(SRC)/spec-mvp.ç-compiler.c
+#}
+	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.ç-compiler.c -o \
+			$(OUT)/$(SRC)/spec-mvp.ç-compiler
+#REPAT
+#{
+	$(OUT)/$(SRC)/spec-mvp.ç-compiler\
 			$(SRC)/spec-mvp.ç $(OUT)/$(SRC)/spec-mvp.c
+#}
 	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.c -o\
 			$(OUT)/$(SRC)/spec-mvp
 clean:
