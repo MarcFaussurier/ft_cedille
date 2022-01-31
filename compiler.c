@@ -104,6 +104,14 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 		if (pattern[i] == '<')
 		{
 			i += 1;
+			while (isspace(pattern[i]))
+			{
+				i += 1;
+			}
+			if (pattern[i] != ';')
+				continue ;
+			else
+				i += 1;
 			u = 0;
 			while (isspace(pattern[i]))
 				i += 1;
@@ -206,12 +214,25 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 	int		i = 0;
 	int		y = 0;
 	char	*aspf;
+	int		x;
+	int		last;
 
+
+	asprintf(&aspf, "success = 1;");
+	strcat(out, aspf);
 	while (pattern[i])
 	{
 		if (pattern[i] == '<')
 		{
 			i += 1;
+			while (isspace(pattern[i]))
+			{
+				i += 1;
+			}
+			if (pattern[i] != ';')
+				continue ;
+			else
+				i += 1;
 			y = 0;
 			cond1[0] = 0;
 			while (pattern[i] != ';')
@@ -223,35 +244,52 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 			cond1[y] = 0;
 			i += 1;
 			y = 0;
-			while (pattern[i] != '>')
+			cond2[0] = 0;
+			while (pattern[i] != ';')
 			{
 				cond2[y] = pattern[i];
 				i += 1;
 				y += 1;
 			}
+			x = 0;
+			last = 1;
+			while (pattern[i + x] && pattern[i + x] != ')' )
+			{
+				if (pattern[i + x] == '<' && pattern[i + x + 1] == ';')
+					last = 0;
+				x += 1;
+			}
 			cond2[y] = 0;
 			asprintf(&aspf, "																\n\
 					%s																		\n\
 					x = 0;																	\n\
-					while (1)																\n\
+					while (success)															\n\
 					{																		\n\
 						if (!(%s))															\n\
 						{																	\n\
-							i -= x;															\n\
+							success = 0;													\n\
 							break ;															\n\
 						}																	\n\
 						if (!(%s))															\n\
 						{																	\n\
-							r = %s(%s);														\n\
-							%s																\n\
+							break ;															\n\
 						}																	\n\
-						i += 1;																\n\
+						x += 1;																\n\
 					}																		\n\
-			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2, id, ft_generate_macro_labels(id, pattern, body, 2), strchr(pattern + i, '<') != 0 ? "break;" : "goto success;");
+			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2);
 			strcat(out, aspf);
 		}
+
 		i += 1;
 	}
+
+	asprintf(&aspf, "if (success)									\n\
+	{															\n\
+		r = %s(%s);														\n\
+		goto success;																\n\
+	}", id, ft_generate_macro_labels(id, pattern, body, 2));
+	strcat(out, aspf);
+
 	return (out);	
 }
 
@@ -711,6 +749,7 @@ int main(int ac, char **av)									\n\
 	char	*o;												\n\
 	char	buffer[8096];									\n\
 	char	*r;												\n\
+	int		success;										\n\
 															\n\
 	if (ac < 3)												\n\
 	{														\n\
@@ -744,9 +783,7 @@ int main(int ac, char **av)									\n\
 			dprintf(out_fd, \"%%s\", r);					\n\
 			goto end;										\n\
 		failure:											\n\
-			strncpy(buffer, s + i, x);						\n\
-			dprintf(out_fd, \"%%s\", buffer);				\n\
-			i += x;											\n\
+			dprintf(out_fd, \"%%c\", s[i]);					\n\
 		end:												\n\
 		i += 1;												\n\
 	}														\n\

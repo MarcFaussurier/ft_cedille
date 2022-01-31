@@ -9,6 +9,7 @@
 #include <stdlib.h>											
 #import "ç"
 #import "spec-mvp2.ç"
+#include "stdio.h"
 
  int m_state_test = 0;
 
@@ -74,7 +75,7 @@ char *macro_0(int i, int x, char *s,char *name,char *__end){
 char *macro_1(int i, int x, char *s,char *name1,char *__end){
 
 	m_state_test += 1;
-	return(cat("Hello ", name1));
+	return(cat("Hello ", name1, "!:))\n"));
 
 }
 
@@ -90,6 +91,7 @@ int main(int ac, char **av)
 	char	*o;												
 	char	buffer[8096];									
 	char	*r;												
+	int		success;										
 															
 	if (ac < 3)												
 	{														
@@ -116,81 +118,85 @@ int main(int ac, char **av)
 	while (s[i])											
 	{														
 		x = 0;												
-		 																
+		 success = 1;																
 					char name[1024];
 *name = 0;
 char __end[1024];*__end = 0;
 																		
 					x = 0;																	
-					while (1)																
+					while (success)															
 					{																		
-						if (!(s[i + x] == "HEllo"[x] ))															
+						if (!( s[i + x] == "Hallo"[x] ))															
 						{																	
-							i -= x;															
+							success = 0;													
 							break ;															
 						}																	
-						if (!( s[i + x]))															
+						if (!( x < 6  ))															
 						{																	
-							r = macro_0(i, x, s, name, __end);														
-							break;																
+							break ;															
 						}																	
-						i += 1;																
+						x += 1;																
 					}																		
 																			
 																							
 					x = 0;																	
-					while (1)																
+					while (success)															
 					{																		
-						if (!(name[x] = s[i + x] ))															
+						if (!( name[x] = s[i + x] ))															
 						{																	
-							i -= x;															
+							success = 0;													
 							break ;															
 						}																	
-						if (!( s[i + x] != ';'))															
+						if (!( s[i + x] != semicolon ))															
 						{																	
-							r = macro_0(i, x, s, name, __end);														
-							goto success;																
+							break ;															
 						}																	
-						i += 1;																
+						x += 1;																
 					}																		
-			
-																
+			if (success)									
+	{															
+		r = macro_0(i, x, s, name, __end);														
+		goto success;																
+	}
+success = 1;																
 					char name1[1024];
 *name1 = 0;
 																		
 					x = 0;																	
-					while (1)																
+					while (success)															
 					{																		
-						if (!(s[i + x] == "Hello"[x] 	))															
+						if (!( s[i + x] == "Hello"[x] 	))															
 						{																	
-							i -= x;															
+							success = 0;													
 							break ;															
 						}																	
-						if (!( x ))															
+						if (!( x < 6 ))															
 						{																	
-							r = macro_1(i, x, s, name1, __end);														
-							break;																
+							break ;															
 						}																	
-						i += 1;																
+						x += 1;																
 					}																		
 																			
 																							
 					x = 0;																	
-					while (1)																
+					while (success)															
 					{																		
-						if (!(name1[x] = s[i + x] 	))															
+						if (!( name1[x] = s[i + x] 	))															
 						{																	
-							i -= x;															
+							success = 0;													
 							break ;															
 						}																	
-						if (!( s[i + x] != '!'))															
+						if (!( (s[i + x] != '!' || (name1[x] = 0)) ))															
 						{																	
-							r = macro_1(i, x, s, name1, __end);														
-							goto success;																
+							break ;															
 						}																	
-						i += 1;																
+						x += 1;																
 					}																		
-			
+			if (success)									
+	{															
+		r = macro_1(i, x, s, name1, __end);														
+		goto success;																
+	}
 													
 		goto failure;										
 		success:											
@@ -198,9 +204,7 @@ char __end[1024];*__end = 0;
 			dprintf(out_fd, "%s", r);					
 			goto end;										
 		failure:											
-			strncpy(buffer, s + i, x);						
-			dprintf(out_fd, "%s", buffer);				
-			i += x;											
+			dprintf(out_fd, "%c", s[i]);					
 		end:												
 		i += 1;												
 	}														

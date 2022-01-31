@@ -129,237 +129,285 @@ __________
 4:	"
 [1mç:0:0: [31merror: [0m[1mFile 'ç' already included !
 [0m
-5:	macro
-6:	int
-7:	g
-8:	(
-9:	int
-10:	z
-11:	)
-12:	{
-13:	return
-14:	z
-15:	;
-16:	}
-17:	macro
-18:	rule
-19:	(
-20:	<
-21:	s
-22:	[
-23:	i
-24:	+
-25:	x
-26:	]
-27:	=
-28:	=
-29:	"
-30:	HEllo
-31:	"
-32:	[
-33:	x
-34:	]
-35:	;
-36:	s
-37:	[
-38:	i
-39:	+
+5:	#
+6:	define
+7:	semicolon
+8:	'
+9:	;
+10:	'
+11:	macro
+12:	int
+13:	g
+14:	(
+15:	int
+16:	z
+17:	)
+18:	{
+19:	return
+20:	z
+21:	;
+22:	}
+23:	macro
+24:	rule
+25:	(
+26:	<
+27:	;
+28:	s
+29:	[
+30:	i
+31:	+
+32:	x
+33:	]
+34:	=
+35:	=
+36:	"
+37:	Hallo
+38:	"
+39:	[
 40:	x
 41:	]
-42:	>
-43:	<
-44:	name
-45:	[
-46:	x
-47:	]
-48:	=
-49:	s
-50:	[
-51:	i
-52:	+
-53:	x
-54:	]
-55:	;
-56:	s
-57:	[
-58:	i
-59:	+
-60:	x
-61:	]
-62:	!
-63:	=
-64:	'
-65:	;
-66:	'
-67:	>
-68:	)
-69:	{
-70:	return
-71:	(
-72:	cat
-73:	(
-74:	"
-75:	Hello
-76:	 
-77:	"
-78:	,
-79:	name
-80:	)
-81:	)
-82:	;
-83:	}
+42:	;
+43:	x
+44:	<
+45:	6
+46:	;
+47:	>
+48:	<
+49:	;
+50:	name
+51:	[
+52:	x
+53:	]
+54:	=
+55:	s
+56:	[
+57:	i
+58:	+
+59:	x
+60:	]
+61:	;
+62:	s
+63:	[
+64:	i
+65:	+
+66:	x
+67:	]
+68:	!
+69:	=
+70:	semicolon
+71:	;
+72:	>
+73:	)
+74:	{
+75:	return
+76:	(
+77:	cat
+78:	(
+79:	"
+80:	Hello
+81:	 
+82:	"
+83:	,
+84:	name
+85:	)
+86:	)
+87:	;
+88:	}
 Macro pattern[pattern='
-	<s[i + x] == "HEllo"[x] ; s[i + x]>
-		<name[x] = s[i + x] ; s[i + x] != ';'>
+	<; s[i + x] == "Hallo"[x] ; x < 6  ;>
+		<; name[x] = s[i + x] ; s[i + x] != semicolon ;>
 '
 	body='
 	return (cat("Hello ", name));
 ']
 __________
-14:	macro
-15:	int
-16:	m_state_test
-17:	=
-18:	0
-19:	;
-20:	macro
-21:	int
-22:	f
-23:	(
-24:	int
-25:	x
-26:	)
-27:	{
-28:	return
-29:	(
-30:	x
-31:	)
-32:	;
-33:	}
-34:	macro
-35:	rule
+14:	#
+15:	include
+16:	"
+17:	stdio
+18:	.
+19:	h
+20:	"
+21:	macro
+22:	int
+23:	m_state_test
+24:	=
+25:	0
+26:	;
+27:	macro
+28:	int
+29:	f
+30:	(
+31:	int
+32:	x
+33:	)
+34:	{
+35:	return
 36:	(
-37:	<
-38:	s
-39:	[
-40:	i
-41:	+
-42:	x
-43:	]
-44:	=
-45:	=
-46:	"
-47:	Hello
-48:	"
-49:	[
+37:	x
+38:	)
+39:	;
+40:	}
+41:	macro
+42:	rule
+43:	(
+44:	<
+45:	;
+46:	s
+47:	[
+48:	i
+49:	+
 50:	x
 51:	]
-52:	;
-53:	x
-54:	>
-55:	=
-56:	5
-57:	>
-58:	<
-59:	name1
-60:	[
+52:	=
+53:	=
+54:	"
+55:	Hello
+56:	"
+57:	[
+58:	x
+59:	]
+60:	;
 61:	x
-62:	]
-63:	=
-64:	s
-65:	[
-66:	i
-67:	+
-68:	x
-69:	]
-70:	;
-71:	s
-72:	[
-73:	i
-74:	+
-75:	x
-76:	]
-77:	!
-78:	=
-79:	'
-80:	!
-81:	'
-82:	>
-83:	)
-84:	{
-85:	m_state_test
-86:	+
-87:	=
-88:	1
-89:	;
-90:	return
-91:	(
-92:	cat
+62:	<
+63:	6
+64:	;
+65:	>
+66:	<
+67:	;
+68:	name1
+69:	[
+70:	x
+71:	]
+72:	=
+73:	s
+74:	[
+75:	i
+76:	+
+77:	x
+78:	]
+79:	;
+80:	(
+81:	s
+82:	[
+83:	i
+84:	+
+85:	x
+86:	]
+87:	!
+88:	=
+89:	'
+90:	!
+91:	'
+92:	||
 93:	(
-94:	"
-95:	Hello
-96:	 
-97:	"
-98:	,
-99:	name1
+94:	name1
+95:	[
+96:	x
+97:	]
+98:	=
+99:	0
 100:	)
 101:	)
 102:	;
-103:	}
+103:	>
+104:	)
+105:	{
+106:	m_state_test
+107:	+
+108:	=
+109:	1
+110:	;
+111:	return
+112:	(
+113:	cat
+114:	(
+115:	"
+116:	Hello
+117:	 
+118:	"
+119:	,
+120:	name1
+121:	,
+122:	"
+123:	!
+124:	:
+125:	)
+126:	)
+127:	\
+128:	n
+129:	"
+130:	)
+131:	)
+132:	;
+133:	}
 Macro pattern[pattern='
-	<s[i + x] == "Hello"[x] 	; x >= 5>
-		<name1[x] = s[i + x] 	; s[i + x] != '!'>
+	<; s[i + x] == "Hello"[x] 	; x < 6 ;>
+		<; name1[x] = s[i + x] 	; (s[i + x] != '!' || (name1[x] = 0)) ; >
 '
 	body='
 	m_state_test += 1;
-	return(cat("Hello ", name1));
+	return(cat("Hello ", name1, "!:))\n"));
 ']
-104:	int
-105:	main
-main begins at 104
-106:	(
-107:	int
-108:	ac
-109:	,
-110:	char
-111:	*
-112:	*
-113:	av
-114:	)
-115:	{
-116:	printf
-117:	(
-118:	"
-119:	Hello
-120:	 
-121:	aa
-122:	,
-123:	 
-124:	bb
-125:	!
-126:	"
-127:	)
-128:	;
-129:	return
-130:	(
-131:	0
-132:	)
-133:	;
-134:	}
+134:	int
+135:	main
+main begins at 134
+136:	(
+137:	int
+138:	ac
+139:	,
+140:	char
+141:	*
+142:	*
+143:	av
+144:	)
+145:	{
+146:	printf
+147:	(
+148:	"
+149:	Hello
+150:	 
+151:	aa
+152:	,
+153:	 
+154:	bb
+155:	!
+156:	 
+157:	Hallo
+158:	 
+159:	joe
+160:	;
+161:	"
+162:	)
+163:	;
+164:	return
+165:	(
+166:	0
+167:	)
+168:	;
+169:	}
 pattern=
-	<s[i + x] == "HEllo"[x] ; s[i + x]>
-		<name[x] = s[i + x] ; s[i + x] != ';'>
+	<; s[i + x] == "Hallo"[x] ; x < 6  ;>
+		<; name[x] = s[i + x] ; s[i + x] != semicolon ;>
  - body=
 	return (cat("Hello ", name));
 
 pattern=
-	<s[i + x] == "Hello"[x] 	; x >= 5>
-		<name1[x] = s[i + x] 	; s[i + x] != '!'>
+	<; s[i + x] == "Hello"[x] 	; x < 6 ;>
+		<; name1[x] = s[i + x] 	; (s[i + x] != '!' || (name1[x] = 0)) ; >
  - body=
 	m_state_test += 1;
-	return(cat("Hello ", name1));
+	return(cat("Hello ", name1, "!:))\n"));
 
 __________
 file ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler.c generated!
 cc -g -I./ft_cedille_spec ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler.c -o \
 			./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler
+cc -g -I./ft_cedille_spec ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler.c -o \
+			./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler
+./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler\
+			./ft_cedille_spec/spec-mvp.ç ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.c
+out_file=./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.c fd=3
+source_file=./ft_cedille_spec/spec-mvp.ç fd=4
+cc -g -I./ft_cedille_spec ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.c -o\
+			./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp
