@@ -2,7 +2,7 @@ cc  -g 	compiler.c \
 			get_next_linev2/get_next_line.c\
 			get_next_linev2/get_next_line_utils.c\
 		-o çc
-./çc -I./ft_cedille_spec ./ft_cedille_spec/spec-mvp.ç -e -compiler.c -o ./ft_cedille_spec_build
+valgrind ./çc -I./ft_cedille_spec ./ft_cedille_spec/spec-mvp.ç -e -compiler.c -o ./ft_cedille_spec_build
 output path	: ./ft_cedille_spec_build
 output sufix	: -compiler.c
 includes[]	: /usr/include
@@ -160,7 +160,7 @@ __________
 33:	x
 34:	]
 35:	;
-36:	x
+36:	s
 37:	[
 38:	i
 39:	+
@@ -180,7 +180,7 @@ __________
 53:	x
 54:	]
 55:	;
-56:	x
+56:	s
 57:	[
 58:	i
 59:	+
@@ -209,8 +209,8 @@ __________
 82:	;
 83:	}
 Macro pattern[pattern='
-	<s[i + x] == "HEllo"[x] ; x[i + x]>
-		<name[x] = s[i + x] ; x[i + x] != ';'>
+	<s[i + x] == "HEllo"[x] ; s[i + x]>
+		<name[x] = s[i + x] ; s[i + x] != ';'>
 '
 	body='
 	return (cat("Hello ", name));
@@ -266,14 +266,14 @@ __________
 61:	x
 62:	]
 63:	=
-64:	c
+64:	s
 65:	[
 66:	i
 67:	+
 68:	x
 69:	]
 70:	;
-71:	c
+71:	s
 72:	[
 73:	i
 74:	+
@@ -308,7 +308,7 @@ __________
 103:	}
 Macro pattern[pattern='
 	<s[i + x] == "Hello"[x] 	; x >= 5>
-		<name1[x] = c[i + x] 	; c[i + x] != '!'>
+		<name1[x] = s[i + x] 	; s[i + x] != '!'>
 '
 	body='
 	m_state_test += 1;
@@ -347,14 +347,14 @@ main begins at 104
 133:	;
 134:	}
 pattern=
-	<s[i + x] == "HEllo"[x] ; x[i + x]>
-		<name[x] = s[i + x] ; x[i + x] != ';'>
+	<s[i + x] == "HEllo"[x] ; s[i + x]>
+		<name[x] = s[i + x] ; s[i + x] != ';'>
  - body=
 	return (cat("Hello ", name));
 
 pattern=
 	<s[i + x] == "Hello"[x] 	; x >= 5>
-		<name1[x] = c[i + x] 	; c[i + x] != '!'>
+		<name1[x] = s[i + x] 	; s[i + x] != '!'>
  - body=
 	m_state_test += 1;
 	return(cat("Hello ", name1));
@@ -363,6 +363,3 @@ __________
 file ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler.c generated!
 cc -g -I./ft_cedille_spec ./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler.c -o \
 			./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler
-./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç-compiler\
-		./ft_cedille_spec_build/./ft_cedille_spec/spec-mvp.ç -o \
-			/./ft_cedille_spec/spec-mvp.c

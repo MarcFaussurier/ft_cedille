@@ -49,8 +49,7 @@ int			references_count = 0;
 char		references[255][255];
 int			label_count = 0;
 char		labels[255][255];
-int			passed_label_count = 0;
-char		passed_labels[255];
+
 
 static int	is_def(char *label)
 {
@@ -79,7 +78,12 @@ static int	is_name(char c)
 		||	(c >= '0' && c <= '9');
 }
 
-char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int init, int fn)
+// TODO::: FIX MEEE
+
+// mode 0 ==> macro typed args
+// mode 1 ==> decl typed inits
+// mode 2 ==> fn calls
+char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 {
 	int		i;
 	int		z;
@@ -87,9 +91,15 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int init, i
 	char	*out = malloc(8096);
 	int		u;
 	int		p;
+	int		passed_label_count = 0;
+	char	*passed_labels[255];
 
-	if (!init)
+	passed_labels[0] = "";
+	*out = 0;
+	if (mode == 2)
 		strcat(out, "i, x, s, ");
+	else if (mode == 0)
+		strcat(out, "int i, int x, char *s,");
 	i = 0;
 	while (pattern[i])
 	{
@@ -102,49 +112,68 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int init, i
 			while (is_name(pattern[i]))
 				labels[label_count][u++] = pattern[i++];
 			labels[label_count][u] = 0;
-			if ( ((init && !is_def(labels[label_count])) || fn) && !EQ(labels[label_count], "s") && !EQ(labels[label_count], "x") && !EQ(labels[label_count], "i"))
+			if (!EQ(labels[label_count], "s") && !EQ(labels[label_count], "x") && !EQ(labels[label_count], "i"))
 			{
-				strcat(out, "char ");
-				strcat(out, labels[label_count]);
-				strcat(out, "[1024]\n*");
-				if (!fn)
-					strcat(out, ", ");
-				else
+
+				if (mode == 0)
 				{
+					p = 0;
+					while (p < passed_label_count && !EQ(passed_labels[p], labels[label_count]))
+					{
+						p += 1;
+					}
+				//	if (p == label_count)
+				//	{
+						strcat(out, "char *");
+						strcat(out, labels[label_count]);
+						strcat(out, ",");
+				//		sprintf(passed_labels[passed_label_count], "%s", labels[label_count]);
+				//		passed_label_count += 1;
+				//	}
+				}
+				else if (mode == 1 && !is_def(labels[label_count]))
+				{
+					strcat(out, "char ");
+					strcat(out, labels[label_count]);
+					strcat(out, "[1024];\n*");
 					strcat(out, labels[label_count]);
 					strcat(out, " = 0;\n");
-				}
-				label_count += 1;
-			}
-			else if (!init)
-			{
-				p = 0;		
-				while (p < label_count)
-				{
-					if (EQ(labels[p], labels[p]))
-						break ;
-					p += 1;
-				}
-				if (p == label_count)
-				{
-					strcat(out, labels[p]);
-					strcat(out, ",");
-				}
-			}	
+					label_count += 1;
 
+				}
+				else if (mode == 2)
+				{
+					p = 0;
+					while (p < passed_label_count && !EQ(passed_labels[p], labels[label_count]))
+					{
+						p += 1;
+					}
+				//	if (p == label_count)
+				//	{
+						strcat(out, labels[label_count]);
+						strcat(out, ", ");
+				//		sprintf(passed_labels[passed_label_count], "%s", labels[label_count]);
+				//		passed_label_count += 1;
+				//	}
+				}
+
+			}
 
 		}
 		i += 1;
 	}
-	if (!init)
-		strcat(out, "__end");
-	else if (!is_def("__end"))
+	if (!mode)
 	{
-		strcat(out, "char ");
-		sprintf(labels[label_count], "%s","__end");
-		strcat(out, labels[label_count++]);
-		strcat(out, "[1024];\n]");
+		strcat(out, "char *__end");
 	}
+	else if (mode == 1 && !is_def("__end"))
+	{
+			strcat(out, "char __end[1024];*__end = 0;\n");
+			sprintf(labels[label_count], "%s","__end");
+			label_count += 1;
+	}
+	else if (mode == 2)
+		strcat(out, "__end");
 	return (out);	
 }
 
@@ -162,7 +191,7 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	strcat(out, "char *");
 	strcat(out, id);
 	strcat(out, "(");
-	strcat(out, ft_generate_macro_labels(id, pattern, body, 1));
+	strcat(out, ft_generate_macro_labels(id, pattern, body, 0));
 	strcat(out, ")");
 	strcat(out, "{\n");
 	strcat(out, body);
@@ -193,6 +222,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 				y += 1;
 				i += 1;
 			}
+			cond1[y] = 0;
 			i += 1;
 			y = 0;
 			while (pattern[i] != '>')
@@ -207,7 +237,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 					x = 0;																	\n\
 					while (1)																\n\
 					{																		\n\
-						if (!(%s))															\n\	
+						if (!(%s))															\n\
 						{																	\n\
 							i -= x;															\n\
 							break ;															\n\
@@ -219,15 +249,11 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 						}																	\n\
 						i += 1;																\n\
 					}																		\n\
-			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2, id, ft_generate_macro_labels(id, pattern, body, 0));
+			", ft_generate_macro_labels(id, pattern, body, 1), cond1, cond2, id, ft_generate_macro_labels(id, pattern, body, 2));
 			strcat(out, aspf);
 		}
 		i += 1;
 	}
-	strcat(out, ")\n{");
-	strcat(out, id);
-	strcat(out, "()");
-	strcat(out, "}");
 	return (out);	
 }
 

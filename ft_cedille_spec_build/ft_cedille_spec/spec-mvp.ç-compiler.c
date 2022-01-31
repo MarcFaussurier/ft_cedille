@@ -42,15 +42,13 @@ static char *cats(char *s, ...)
 															
 }															
 															
-char *macro_0(int i, int x, char *s, char *name,char *__end)
-{
+char *macro_0(int i, int x, char *s,char *name,char *__end){
 
 	return (cat("Hello ", name));
 
 }
 
-char *macro_1(int i, int x, char *s, char *name1,char *__end)
-{
+char *macro_1(int i, int x, char *s,char *name1,char *__end){
 
 	m_state_test += 1;
 	return(cat("Hello ", name1));
@@ -79,8 +77,10 @@ int main(int ac, char **av)
 	{														
 		x = 0;												
 		 																
-					char __end[1024];
-]																		
+					char name[1024];
+*name = 0;
+char __end[1024];*__end = 0;
+																		
 					x = 0;																	
 					while (1)																
 					{																		
@@ -91,7 +91,7 @@ int main(int ac, char **av)
 						}																	
 						if (!( s[i + x]))															
 						{																	
-							macro_0(i, x, s, __end);															
+							macro_0(i, x, s, name, __end);															
 							goto success;													
 						}																	
 						i += 1;																
@@ -101,23 +101,23 @@ int main(int ac, char **av)
 					x = 0;																	
 					while (1)																
 					{																		
-						if (!(name[x] = s[i + x] [x] ))															
+						if (!(name[x] = s[i + x] ))															
 						{																	
 							i -= x;															
 							break ;															
 						}																	
 						if (!( s[i + x] != ';'))															
 						{																	
-							macro_0(i, x, s, __end);															
+							macro_0(i, x, s, name, __end);															
 							goto success;													
 						}																	
 						i += 1;																
 					}																		
-			)
-{macro_0()}
+			
 																
-					char __end[1024];
-]																		
+					char name1[1024];
+*name1 = 0;
+																		
 					x = 0;																	
 					while (1)																
 					{																		
@@ -128,7 +128,7 @@ int main(int ac, char **av)
 						}																	
 						if (!( x ))															
 						{																	
-							macro_1(i, x, s, __end);															
+							macro_1(i, x, s, name1, __end);															
 							goto success;													
 						}																	
 						i += 1;																
@@ -138,20 +138,19 @@ int main(int ac, char **av)
 					x = 0;																	
 					while (1)																
 					{																		
-						if (!(name1[x] = c[i + x] 	] 	))															
+						if (!(name1[x] = s[i + x] 	))															
 						{																	
 							i -= x;															
 							break ;															
 						}																	
-						if (!( c[i + x] != '!'))															
+						if (!( s[i + x] != '!'))															
 						{																	
-							macro_1(i, x, s, __end);															
+							macro_1(i, x, s, name1, __end);															
 							goto success;													
 						}																	
 						i += 1;																
 					}																		
-			)
-{macro_1()}
+			
 													
 		i += 1;												
 	}														
