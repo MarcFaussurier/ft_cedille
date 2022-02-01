@@ -758,6 +758,7 @@ int main(int ac, char **av)									\n\
 	char	*r;												\n\
 	int		success;										\n\
 	char	*macro_name;									\n\
+	int		i_len;											\n\
 															\n\
 	if (ac < 3)												\n\
 	{														\n\
@@ -782,6 +783,7 @@ int main(int ac, char **av)									\n\
 	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			\n\
 	i = 0;													\n\
 	macro_name = \"marvin\";								\n\
+	i_len = strlen(s);										\n\
 	while (s[i])											\n\
 	{														\n\
 		 %s													\n\
@@ -790,6 +792,8 @@ int main(int ac, char **av)									\n\
 			printf(\"1 macro applied [id=%%s i=%%d x=%%d on=%%.*s].\\n\", macro_name,  i, x, x - i, s + i);\n\
 			i = x - 1 ;										\n\
 			dprintf(out_fd, \"%%s\", r);					\n\
+			if (i >= i_len)									\n\
+				break;										\n\
 			goto end;										\n\
 		failure:											\n\
 			dprintf(out_fd, \"%%c\", s[i]);					\n\

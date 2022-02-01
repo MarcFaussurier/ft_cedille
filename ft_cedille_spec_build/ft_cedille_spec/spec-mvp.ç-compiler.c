@@ -133,6 +133,7 @@ int main(int ac, char **av)
 	char	*r;												
 	int		success;										
 	char	*macro_name;									
+	int		i_len;											
 															
 	if (ac < 3)												
 	{														
@@ -157,6 +158,7 @@ int main(int ac, char **av)
 	s = mmap(0, i, PROT_READ, MAP_PRIVATE, fd, 0);			
 	i = 0;													
 	macro_name = "marvin";								
+	i_len = strlen(s);										
 	while (s[i])											
 	{														
 		 success = 1;x=i;																
@@ -263,7 +265,7 @@ char body[1024];
 					y = 0;																	
 					while (success)															
 					{																		
-						if (!((name[y] = s[x + y]) && y < 11 && s[x + y]	))															
+						if (!((name[y] = s[x + y]) && y < 8 && s[x + y]	))															
 						{																	
 							macro_name = "macro_2";											
 							success = 0;													
@@ -364,6 +366,8 @@ char body[1024];
 			printf("1 macro applied [id=%s i=%d x=%d on=%.*s].\n", macro_name,  i, x, x - i, s + i);
 			i = x - 1 ;										
 			dprintf(out_fd, "%s", r);					
+			if (i >= i_len)									
+				break;										
 			goto end;										
 		failure:											
 			dprintf(out_fd, "%c", s[i]);					

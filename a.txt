@@ -90,10 +90,9 @@ int main(int ac, char **av)
 	{
 			foo(  ^() { ;
 		printf("a");
-			bar(  ^() { ;
+		await	bar();
 		printf("a");
-  });
-});
+ });
 }
 
 	return (0);
