@@ -676,6 +676,8 @@ next:
 			p += 1;
 		}
 		p = 0;
+		
+
 		header[0] = 0;
 		while (p < compiler_i)
 		{
@@ -786,7 +788,7 @@ int main(int ac, char **av)									\n\
 		goto failure;										\n\
 		success:											\n\
 			printf(\"1 macro applied [id=%%s i=%%d x=%%d on=%%.*s].\\n\", macro_name,  i, x, x - i, s + i);\n\
-			i = x;											\n\
+			i = x - 1 ;										\n\
 			dprintf(out_fd, \"%%s\", r);					\n\
 			goto end;										\n\
 		failure:											\n\

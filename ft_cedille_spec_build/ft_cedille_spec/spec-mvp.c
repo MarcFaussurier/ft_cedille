@@ -27,10 +27,11 @@ macro rule
 	return(cat("Good night dear ", test, "."));
 }
 
+#define await
 macro	rule
 (
 	<s[x + y] == "await"[y]							; 	y == 4;>
-		<name[y] = s[x + y] && y < 11 && s[x + y]	;	s[x + y] == '(' && !(name[y] = 0);>
+		<(name[y] = s[x + y]) && y < 11 && s[x + y]	;	s[x + y] == '(' && !(name[y] = 0);>
 				<(args[y] = s[x + y])  				
 				;	
 					s[x + y] == ')'	
@@ -60,23 +61,39 @@ macro	rule
 {
 	char	*o;
 
-	asprintf(&o, "%s(%s %s ^() { %s });", 
+	asprintf(&o, "%s(%s %s ^() { %s });\n}", 
 		cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(body));
 
 	return (o);
 }
-#define await
-#define foo()
-#define bar()
+
+
+
+void 	bar( void (^ptr)() )
+{
+
+}
+
+
+
+
+
+void 	foo( void (^ptr)() )
+{
+
+}
+
 int main(int ac, char **av)
 {
-	printf ("Good night dear bb.Hallo joe; Hallo ddd;");
+	printf ("Good night dear bb. Hallo joe; Hallo ddd;");
 
 	{
-		(  ^() { ;
+			foo(  ^() { ;
 		printf("a");
-		await	bar();
+		await	bar(0);
 		printf("a");
  });
+}
+
 	return (0);
 }

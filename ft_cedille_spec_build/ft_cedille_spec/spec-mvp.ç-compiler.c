@@ -29,10 +29,25 @@
 
  
 
-	
 #define await
-#define foo()
-#define bar()
+	
+
+
+
+void 	bar( void (^ptr)() )
+{
+
+}
+
+
+
+
+
+void 	foo( void (^ptr)() )
+{
+
+}
+
 
  															
 #undef cat													
@@ -96,7 +111,7 @@ char *macro_2(int i, int x, int y, char *s,char *name,char *args,char *body,char
 
 	char	*o;
 
-	asprintf(&o, "%s(%s %s ^() { %s });", 
+	asprintf(&o, "%s(%s %s ^() { %s });\n}", 
 		cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(body));
 
 	return (o);
@@ -248,7 +263,7 @@ char body[1024];
 					y = 0;																	
 					while (success)															
 					{																		
-						if (!(name[y] = s[x + y] && y < 11 && s[x + y]	))															
+						if (!((name[y] = s[x + y]) && y < 11 && s[x + y]	))															
 						{																	
 							macro_name = "macro_2";											
 							success = 0;													
@@ -347,7 +362,7 @@ char body[1024];
 		goto failure;										
 		success:											
 			printf("1 macro applied [id=%s i=%d x=%d on=%.*s].\n", macro_name,  i, x, x - i, s + i);
-			i = x;											
+			i = x - 1 ;										
 			dprintf(out_fd, "%s", r);					
 			goto end;										
 		failure:											
