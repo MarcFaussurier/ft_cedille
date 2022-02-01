@@ -6,6 +6,6 @@ steps:
 - [X] reccursive analysis in import directives
 - [x] copy everything but main to generate a compiler
 - [x] keep replacing output string using macro definitions in the generated compiler
-- [ ] copy everything but macro when macro no longer update the code
+- [ ] delete macro def on final source generation
 - [ ] add a flag to compile the output string using clang or gcc
 
