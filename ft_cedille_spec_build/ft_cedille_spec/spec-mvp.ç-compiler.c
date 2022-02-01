@@ -283,10 +283,10 @@ char body[1024];
 							success = 0;													
 							break ;															
 						}																	
-						if (	s[x + y] && s[x + y] == ')'	&& !(args[y] = 0))																
+						if (	s[x + y] == ')'	&& !(args[y] = 0))																
 						{																	
 							y += 1;															
-							printf("%s succeed macro_2 %i!\n", str(	s[x + y] && s[x + y] == ')'	&& !(args[y] = 0)), i);					
+							printf("%s succeed macro_2 %i!\n", str(	s[x + y] == ')'	&& !(args[y] = 0)), i);					
 							break ;															
 						}																	
 						y += 1;																
@@ -303,10 +303,10 @@ char body[1024];
 							success = 0;													
 							break ;															
 						}																	
-						if (	s[x + y] && !isspace(s[x + y]))																
+						if ( 	!isspace(s[x + y]))																
 						{																	
 							y += 1;															
-							printf("%s succeed macro_2 %i!\n", str(	s[x + y] && !isspace(s[x + y])), i);					
+							printf("%s succeed macro_2 %i!\n", str( 	!isspace(s[x + y])), i);					
 							break ;															
 						}																	
 						y += 1;																

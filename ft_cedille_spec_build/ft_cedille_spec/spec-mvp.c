@@ -31,8 +31,8 @@ macro	rule
 	<s[x + y] == "await"[y]							; 	y == 4;>
 		<x && y < 10 && s[x + y]					;	!isspace(s[x + y]);>
 			<x	&& y < 10 && s[x + y]				;	s[x + y] == '(';>
-				<(args[y] = s[x + y])  				;	s[x + y] && s[x + y] == ')'	&& !(args[y] = 0);>
-					<x								;	s[x + y] && !isspace(s[x + y]);>
+				<(args[y] = s[x + y])  				;	s[x + y] == ')'	&& !(args[y] = 0);>
+					<x								; 	!isspace(s[x + y]);>
 							<(body[y] = s[x + y]) 
 								&&
 								((
