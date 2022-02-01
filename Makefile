@@ -6,11 +6,11 @@ all:
 			get_next_linev2/get_next_line.c\
 			get_next_linev2/get_next_line_utils.c\
 		-o çc
-	./çc -I$(SRC) $(SRC)/spec-mvp.ç -e -compiler.c -o $(OUT)
+	valgrind ./çc -I$(SRC) $(SRC)/spec-mvp.ç -e -compiler.c -o $(OUT)
 	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.ç-compiler.c -o \
 			$(OUT)/$(SRC)/spec-mvp.ç-compiler
 #TODO: recompile the compiler using itself ? or re-compile the final file
-	$(OUT)/$(SRC)/spec-mvp.ç-compiler\
+	valgrind $(OUT)/$(SRC)/spec-mvp.ç-compiler\
 			$(SRC)/spec-mvp.ç $(OUT)/$(SRC)/spec-mvp.c
 	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.c -o\
 			$(OUT)/$(SRC)/spec-mvp

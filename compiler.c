@@ -222,7 +222,8 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 	int		last;
 
 
-	asprintf(&aspf, "success = 1;x=0;");
+	asprintf(&aspf, "success = 1;x=i;");
+	*out = 0;
 	strcat(out, aspf);
 	while (pattern[i])
 	{
@@ -401,7 +402,7 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 	int		r;
 	char	error[2048];
 	char	macros[4096];
-	char	parser[4096];
+	char	parser[99999];
 	char	header[4096];
 	char	*body;
 	char	*pattern;
@@ -785,7 +786,7 @@ int main(int ac, char **av)									\n\
 		goto failure;										\n\
 		success:											\n\
 			printf(\"1 macro applied [id=%%s i=%%d x=%%d on=%%.*s].\\n\", macro_name, i, x, x, s + i);\n\
-			i += x;											\n\
+			i = x;											\n\
 			dprintf(out_fd, \"%%s\", r);					\n\
 			goto end;										\n\
 		failure:											\n\
