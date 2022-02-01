@@ -785,7 +785,7 @@ int main(int ac, char **av)									\n\
 		 %s													\n\
 		goto failure;										\n\
 		success:											\n\
-			printf(\"1 macro applied [id=%%s i=%%d x=%%d on=%%.*s].\\n\", macro_name, i, x, x, s + i);\n\
+			printf(\"1 macro applied [id=%%s i=%%d x=%%d on=%%.*s].\\n\", macro_name,  i, x, x - i, s + i);\n\
 			i = x;											\n\
 			dprintf(out_fd, \"%%s\", r);					\n\
 			goto end;										\n\

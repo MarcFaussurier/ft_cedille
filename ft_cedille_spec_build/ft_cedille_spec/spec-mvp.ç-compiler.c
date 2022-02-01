@@ -11,6 +11,7 @@
 #import "ç"
 #import "spec-mvp2.ç"
 #include "stdio.h"
+#include "string.h"
 
  int 	m_state_test = 0;
  int	m_brackets_level = 0;
@@ -31,6 +32,7 @@
 	
 #define await
 #define foo()
+#define bar()
 
  															
 #undef cat													
@@ -83,16 +85,21 @@ char *macro_0(int i, int x, int y, char *s,char *__end){
 
 }
 
-char *macro_1(int i, int x, int y, char *s,char *__end){
+char *macro_1(int i, int x, int y, char *s,char *test,char *__end){
 
 	m_state_test += 1;
-	return(cat("Good night !:)"));
+	return(cat("Good night dear ", test, "."));
 
 }
 
-char *macro_2(int i, int x, int y, char *s,char *args,char *body,char *__end){
+char *macro_2(int i, int x, int y, char *s,char *name,char *args,char *body,char *__end){
 
-	return (cat("printf(\"508 PSE\");"));
+	char	*o;
+
+	asprintf(&o, "%s(%s %s ^() { %s });", 
+		cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(body));
+
+	return (o);
 
 }
 
@@ -164,20 +171,22 @@ int main(int ac, char **av)
 		goto success;																		
 	}
 success = 1;x=i;																
-																							
+					char test[1024];
+*test = 0;
+																		
 					y = 0;																	
 					while (success)															
 					{																		
-						if (!(s[x + y] == "Hello"[y]		))															
+						if (!(s[x + y] == "Hello "[y]				))															
 						{																	
 							macro_name = "macro_1";											
 							success = 0;													
 							break ;															
 						}																	
-						if (	y == 4)																
+						if (	y == 5)																
 						{																	
 							y += 1;															
-							printf("%s succeed macro_1 %i!\n", str(	y == 4), i);					
+							printf("%s succeed macro_1 %i!\n", str(	y == 5), i);					
 							break ;															
 						}																	
 						y += 1;																
@@ -188,16 +197,16 @@ success = 1;x=i;
 					y = 0;																	
 					while (success)															
 					{																		
-						if (!(s[x + y] == " bb"[y]	))															
+						if (!((test[y] = s[x + y]) && y < 5		))															
 						{																	
 							macro_name = "macro_1";											
 							success = 0;													
 							break ;															
 						}																	
-						if (	y == 1)																
+						if (	s[x + y] == "!"[0]	&& !(test[y] = 0))																
 						{																	
 							y += 1;															
-							printf("%s succeed macro_1 %i!\n", str(	y == 1), i);					
+							printf("%s succeed macro_1 %i!\n", str(	s[x + y] == "!"[0]	&& !(test[y] = 0)), i);					
 							break ;															
 						}																	
 						y += 1;																
@@ -205,11 +214,13 @@ success = 1;x=i;
 					x += y;																	
 			if (success)															
 	{																						
-		r = macro_1(i, x, y, s, __end);																			
+		r = macro_1(i, x, y, s, test, __end);																			
 		goto success;																		
 	}
 success = 1;x=i;																
-					char args[1024];
+					char name[1024];
+*name = 0;
+char args[1024];
 *args = 0;
 char body[1024];
 *body = 0;
@@ -237,16 +248,16 @@ char body[1024];
 					y = 0;																	
 					while (success)															
 					{																		
-						if (!(x && y < 10 && s[x + y]					))															
+						if (!(name[y] = s[x + y] && y < 11 && s[x + y]	))															
 						{																	
 							macro_name = "macro_2";											
 							success = 0;													
 							break ;															
 						}																	
-						if (	!isspace(s[x + y]))																
+						if (	s[x + y] == '(' && !(name[y] = 0))																
 						{																	
 							y += 1;															
-							printf("%s succeed macro_2 %i!\n", str(	!isspace(s[x + y])), i);					
+							printf("%s succeed macro_2 %i!\n", str(	s[x + y] == '(' && !(name[y] = 0)), i);					
 							break ;															
 						}																	
 						y += 1;																
@@ -257,56 +268,33 @@ char body[1024];
 					y = 0;																	
 					while (success)															
 					{																		
-						if (!(x	&& y < 10 && s[x + y]				))															
+						if (!((args[y] = s[x + y])  				
+				))															
 						{																	
 							macro_name = "macro_2";											
 							success = 0;													
 							break ;															
 						}																	
-						if (	s[x + y] == '(')																
+						if (	
+					s[x + y] == ')'	
+					&& 
+					!(
+						(args[y] = 0) 
+						|| 
+						(m_brackets_level = 0)
+					)
+				)																
 						{																	
 							y += 1;															
-							printf("%s succeed macro_2 %i!\n", str(	s[x + y] == '('), i);					
-							break ;															
-						}																	
-						y += 1;																
-					}																		
-					x += y;																	
-																			
-																							
-					y = 0;																	
-					while (success)															
-					{																		
-						if (!((args[y] = s[x + y])  				))															
-						{																	
-							macro_name = "macro_2";											
-							success = 0;													
-							break ;															
-						}																	
-						if (	s[x + y] == ')'	&& !(args[y] = 0))																
-						{																	
-							y += 1;															
-							printf("%s succeed macro_2 %i!\n", str(	s[x + y] == ')'	&& !(args[y] = 0)), i);					
-							break ;															
-						}																	
-						y += 1;																
-					}																		
-					x += y;																	
-																			
-																							
-					y = 0;																	
-					while (success)															
-					{																		
-						if (!(x								))															
-						{																	
-							macro_name = "macro_2";											
-							success = 0;													
-							break ;															
-						}																	
-						if ( 	!isspace(s[x + y]))																
-						{																	
-							y += 1;															
-							printf("%s succeed macro_2 %i!\n", str( 	!isspace(s[x + y])), i);					
+							printf("%s succeed macro_2 %i!\n", str(	
+					s[x + y] == ')'	
+					&& 
+					!(
+						(args[y] = 0) 
+						|| 
+						(m_brackets_level = 0)
+					)
+				), i);					
 							break ;															
 						}																	
 						y += 1;																
@@ -318,30 +306,33 @@ char body[1024];
 					while (success)															
 					{																		
 						if (!((body[y] = s[x + y]) 
-								&&
-								((
-								(	s[x + y] == '{' && m_brackets_level++) 
-									|| 		
-									(s[x + y] == '}' && m_brackets_level--)
-								) || 1)
-							))															
+						&&
+						(
+							(
+								(s[x + y] == '{' && ++m_brackets_level) 
+								|| 		
+								(s[x + y] == '}' && (m_brackets_level-- || 1))
+							) 
+							|| 1
+						)
+					))															
 						{																	
 							macro_name = "macro_2";											
 							success = 0;													
 							break ;															
 						}																	
 						if (	
-								(s[x + y] == '}' && !m_brackets_level)
-								||
-								!(body[y] = 0)
-							)																
+						(s[x + y] == '}' && m_brackets_level < 0)
+						&&
+						!(body[y] = 0)
+					)																
 						{																	
 							y += 1;															
 							printf("%s succeed macro_2 %i!\n", str(	
-								(s[x + y] == '}' && !m_brackets_level)
-								||
-								!(body[y] = 0)
-							), i);					
+						(s[x + y] == '}' && m_brackets_level < 0)
+						&&
+						!(body[y] = 0)
+					), i);					
 							break ;															
 						}																	
 						y += 1;																
@@ -349,13 +340,13 @@ char body[1024];
 					x += y;																	
 			if (success)															
 	{																						
-		r = macro_2(i, x, y, s, args, body, __end);																			
+		r = macro_2(i, x, y, s, name, args, body, __end);																			
 		goto success;																		
 	}
 													
 		goto failure;										
 		success:											
-			printf("1 macro applied [id=%s i=%d x=%d on=%.*s].\n", macro_name, i, x, x, s + i);
+			printf("1 macro applied [id=%s i=%d x=%d on=%.*s].\n", macro_name,  i, x, x - i, s + i);
 			i = x;											
 			dprintf(out_fd, "%s", r);					
 			goto end;										
