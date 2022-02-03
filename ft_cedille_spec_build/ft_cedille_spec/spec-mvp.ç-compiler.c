@@ -32,23 +32,63 @@
 
  
 
-#define await
-	
 
 
 
-void 	bar( void (^ptr)() )
+ char	*trim(char *str)
 {
+	int	i;
+	char	*o;
 
+	while (*str && isspace(*str))
+	{
+		str += 1;
+	}
+	i = 0;
+	while (str[i] && !isspace(str[i]))
+	{
+		i += 1;
+	}
+	asprintf(&o, "%.*s", i, str);
+	return (o);
+}
+
+ char 	*lastword(char *str)
+{
+	char	*lastspace;
+	int		i;
+
+	i = 0;
+	while (str[i])
+			i += 1;
+	while ((i - 1) && isspace(str[i - 1]))
+		i -= 1;
+
+	while ((i - 1) && !isspace(str[i - 1]))
+		i -= 1;
+	return (str + i);
+
+}
+
+#define await
+		
+
+
+
+int 	bar( void (^ptr)(int k) )
+{
+	ptr(21);
+	return (0);
 }
 
 
 
 
 
-void 	foo( void (^ptr)() )
+int 	foo( void (^ptr)(int k) )
 {
-
+	ptr(42);
+	return (0);
 }
 
 
@@ -114,8 +154,10 @@ char *macro_2(int i, int x, int y, char *s,char *prev,char *assignation,char *na
 
 	char	*o;
 
-	asprintf(&o, "%s\n%s(%s %s ^(%s) { %s });\n}",
-		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(assignation), cat(body));
+
+	
+	asprintf(&o, "%s\n%s(%s %s ^(typeof(%s(0)) %s) { %s });\n}",
+		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(name), lastword(cat(assignation)), cat(body));
 
 	return (o);
 

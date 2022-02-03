@@ -30,8 +30,46 @@ macro rule
 	return(cat("Good night dear ", test, "."));
 }
 
+
+
+
+macro char	*trim(char *str)
+{
+	int	i;
+	char	*o;
+
+	while (*str && isspace(*str))
+	{
+		str += 1;
+	}
+	i = 0;
+	while (str[i] && !isspace(str[i]))
+	{
+		i += 1;
+	}
+	asprintf(&o, "%.*s", i, str);
+	return (o);
+}
+
+macro char 	*lastword(char *str)
+{
+	char	*lastspace;
+	int		i;
+
+	i = 0;
+	while (str[i])
+			i += 1;
+	while ((i - 1) && isspace(str[i - 1]))
+		i -= 1;
+
+	while ((i - 1) && !isspace(str[i - 1]))
+		i -= 1;
+	return (str + i);
+
+}
+
 #define await
-macro	rule
+macro		rule
 (
 	<
 		(prev[0] = s[x])
@@ -109,26 +147,30 @@ macro	rule
 {
 	char	*o;
 
-	asprintf(&o, "%s\n%s(%s %s ^(%s) { %s });\n}",
-		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(assignation), cat(body));
+
+	
+	asprintf(&o, "%s\n%s(%s %s ^(typeof(%s(0)) %s) { %s });\n}",
+		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(name), lastword(cat(assignation)), cat(body));
 
 	return (o);
 }
 
 
 
-void 	bar( void (^ptr)() )
+int 	bar( void (^ptr)(int k) )
 {
-
+	ptr(21);
+	return (0);
 }
 
 
 
 
 
-void 	foo( void (^ptr)() )
+int 	foo( void (^ptr)(int k) )
 {
-
+	ptr(42);
+	return (0);
 }
 
 int main(int ac, char **av)
@@ -136,11 +178,10 @@ int main(int ac, char **av)
 	printf ("Good night dear bb. Hallo joe; Hallo ddd;");
 
 	{
-	foo(  ^(
-		int i ) { ;
-		printf("a");
-		int z = await	bar();
-		printf("a");
+	foo(  ^(typeof(	foo(0)) i ) { ;
+		printf("a: %i\n", i);
+		auto z = await	bar();
+		printf("b: %i\n", z);
  });
 }
 
