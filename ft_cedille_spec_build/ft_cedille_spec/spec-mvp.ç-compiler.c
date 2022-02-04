@@ -70,6 +70,7 @@
 
 }
 
+/* TODO: deeper parse - f(await g(...)[await h(...) + await i(...)]) */
 #define await
 		
 
@@ -154,8 +155,8 @@ char *macro_2(int i, int x, int y, char *s, char *prev, char *assignation, char 
 
 
 	
-	asprintf(&o, "%s\n%s(%s %s ^(typeof(%s(0)) %s) { %s });\n}",
-		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(name), lastword(cat(assignation)), cat(body));
+	asprintf(&o, "%s\n%s(%s%s ^(typeof(%s(%s%s 0)) %s) { %s });\n}",
+		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(name), cat(args), strlen(cat(args)) ? "," : "",  lastword(cat(assignation)), cat(body));
 
 	return (o);
 

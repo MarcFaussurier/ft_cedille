@@ -68,6 +68,7 @@ macro char 	*lastword(char *str)
 
 }
 
+/* TODO: deeper parse - f(await g(...)[await h(...) + await i(...)]) */
 #define await
 macro		rule
 (
@@ -149,8 +150,8 @@ macro		rule
 
 
 	
-	asprintf(&o, "%s\n%s(%s %s ^(typeof(%s(0)) %s) { %s });\n}",
-		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(name), lastword(cat(assignation)), cat(body));
+	asprintf(&o, "%s\n%s(%s%s ^(typeof(%s(%s%s 0)) %s) { %s });\n}",
+		cat (prev), cat(name), cat(args), strlen(cat(args)) ? "," : "", cat(name), cat(args), strlen(cat(args)) ? "," : "",  lastword(cat(assignation)), cat(body));
 
 	return (o);
 }
@@ -178,9 +179,9 @@ int main(int ac, char **av)
 	printf ("Good night dear bb. Hallo joe; Hallo ddd;");
 
 	{
-	foo(10 , ^(typeof(	foo(0)) i ) { ;
+	bar(10, ^(typeof(	bar(10, 0)) i ) { ;
 		printf("a: %i\n", i);
-		auto z = await	bar(21, 'c');
+		auto z = await	foo(21, 'c');
 		printf("b: %i\n", z);
  });
 }

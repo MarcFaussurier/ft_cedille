@@ -35,13 +35,14 @@
 {				\
 	asprintf(&error, X, __VA_ARGS__);	\
 	printf("ç: \033[1m\033[31merror: \033[0m%s\n", error);\
-	strfree(X)							\
+	strfree(error)						\
 	errors += 1; 						\
 }
 #define strfree(swp)					\
 {										\
-	if (swp != (char*)"")				\
+	if (swp && swp != (char*)"")		\
 		free(swp);						\
+	swp = 0;							\
 }
 #define stradd(X, ...)					\
 {										\
@@ -207,10 +208,12 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	char	*out;
 	int		p;
 	int		u;
+	char	*s;
 
 	out = "";
 	printf("pattern=%s - body=%s\n", pattern, body);
-	stradd(out, "char *%s(%s){\n%s\n}\n", id, ft_generate_macro_labels(id, pattern, body, 0), body);
+	stradd(out, "char *%s(%s){\n%s\n}\n", id, (s = ft_generate_macro_labels(id, pattern, body, 0)), body);
+	free(s);
 	return (out);	
 }
 
@@ -224,6 +227,7 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 	char	*aspf;
 	int		x;
 	int		last;
+	char	*s;
 
 	stradd(out, "success = 1;\nx=i;\n")
 	while (pattern[i])
@@ -254,8 +258,9 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 					last = 0;
 				x += 1;
 			}
+			s = ft_generate_macro_labels(id, pattern, body, 1);
 			if (!last)
-			stradd(out, "																\n\
+				stradd(out, "																\n\
 					%s																		\n\
 					y = 0;																	\n\
 					while (success)															\n\
@@ -275,7 +280,8 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 						y += 1;																\n\
 					}																		\n\
 					x += y;																	\n\
-			",  ft_generate_macro_labels(id, pattern, body, 1), cond1, id, cond2, id, cond2);
+			",  s, cond1, id, cond2, id, cond2);
+			strfree(s)
 			strfree(cond1)
 			strfree(cond2)
 		}
@@ -287,7 +293,8 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 	{																						\n\
 		r = %s(%s);																			\n\
 		goto success;																		\n\
-	}", id, ft_generate_macro_labels(id, pattern, body, 2));
+	}", id, (s = ft_generate_macro_labels(id, pattern, body, 2)));
+	free(s);
 	return (out);	
 }
 
@@ -446,6 +453,17 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 	main_begin					= 0;
 	main_end 					= 0;
 	import_begin				= 0;
+	compiler_i 					= 0;
+	p = 0;
+	while (p < TOKEN_HISTORY_MAX)
+		compiler[p++] = 0;
+	p = 0;
+	while (p < TOKEN_HISTORY_MAX)
+		token_history[p++] = 0;
+	p = 0;
+	while (p < TOKEN_HISTORY_MAX)
+		full_token_history[p++] = 0;
+	p = 0;
 	while ((token 				= get_next_token(fd, is_ctoken)))
 	{
 		token_len = strlen(token);
@@ -467,11 +485,13 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 			goto parse_token;
 		continue;
 parse_token:
-		full_token_history[++fty] = strdup(token);
+		free(full_token_history[++fty]);
+		full_token_history[fty] = strdup(token);
 		if (!(!is.quotes && !is.quote && !is.comment && !is.ml_comment) 
 				 || !isspace(token[0]))
 		{
 				printf("%i:\t%s\n", ty, token);
+				free(token_history[ty]);
 			 	token_history[ty] = strdup(token);
 		 }
 		 else
@@ -569,6 +589,7 @@ flush_import:
 						{
 							strfree(import_path)
 							p = 0;
+							strfree(buffer)
 							goto next;
 						}
 						printf("-- parse(%s) returned %i\n", buffer, r);
@@ -644,15 +665,19 @@ next:
 		if (!depth && is.in_compiler)
 		{
 			if (is.in_compiler > 0)
+			{
+				free(compiler[compiler_i]);
 				compiler[compiler_i++] = strdup(token);
+			}
 			is.in_compiler = 1;
 		}
-		strfree(token)
+		free(token);
 		ty += 1;
 		if (is.split)
 		{
 			is.split = 0;
 			token = l;
+			token_len = 1;
 			goto parse_token;
 		}
 	}
@@ -674,7 +699,9 @@ next:
 		}
 		p = 0;
 		while (p < compiler_i)
+		{
 			stradd(header, "%s", compiler[p++])
+		}
 		asprintf(&buffer, "%s/%s%s", output_prefix, path, output_sufix);
 		mkpath(buffer);
 		outfd = open(buffer, O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -798,31 +825,21 @@ int main(int ac, char **av)									\n\
 		close(outfd);
 	}
 	p = 0;
-	while (p < ty)
-	{
-		token_history[p] = 0;
-		free(token_history[p]);
-		p += 1;
-	}
+	while (p < TOKEN_HISTORY_MAX)
+		free(token_history[p++]);
 	ty = 0;
 	p = 0;
-	while (p < fty)
-	{
-		full_token_history[p] = 0;
-		strfree(full_token_history[p])
-		p += 1;
-	}
+	while (p < TOKEN_HISTORY_MAX)
+		free(full_token_history[p++]);
 	p = 0;
 	fty = 0;
-	while (p < compiler_i)
-	{
-		strfree(compiler[p])
-		p += 1;
-	}
+	while (p < TOKEN_HISTORY_MAX)
+		free(compiler[p++]);
 	compiler_i = 0;
 	p = 0;
 	if (!depth)
 	{
+		p = 0;
 		while (p < macro_patterns_count)
 		{
 			strfree(macro_patterns[p][0])
@@ -925,6 +942,13 @@ int			main(int ac, char **av)
 			CMD_ERROR("no such file or directory: '%s'", sources[p])
 		else
 			printf("file %s/%s%s generated!\n", output_prefix, sources[p], output_sufix);
+		p = 0;
+		while (p < macro_patterns_count)
+		{
+			strfree(macro_patterns[p][0])
+			strfree(macro_patterns[p][1])
+			p += 1;
+		}
 		macro_patterns_count = 0;
 		references_count = 0;
 		p += 1;
