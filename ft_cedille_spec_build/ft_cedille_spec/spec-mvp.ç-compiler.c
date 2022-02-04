@@ -75,7 +75,7 @@
 
 
 
-int 	bar( void (^ptr)(int k) )
+int 	bar( int p, void (^ptr)(int k) )
 {
 	ptr(21);
 	return (0);
@@ -85,7 +85,7 @@ int 	bar( void (^ptr)(int k) )
 
 
 
-int 	foo( void (^ptr)(int k) )
+int 	foo( int p, char c, void (^ptr)(int k) )
 {
 	ptr(42);
 	return (0);
@@ -137,20 +137,23 @@ static void mkpath(const char *dir)
 		p += 1;												
 	}														
 }															
-char *macro_0(int i, int x, int y, char *s,char *__end){
+
+char *macro_0(int i, int x, int y, char *s, char *__end){
 
 	return (cat("!! "));
 
 }
 
-char *macro_1(int i, int x, int y, char *s,char *test,char *__end){
+
+char *macro_1(int i, int x, int y, char *s, char *test2, char *__end){
 
 	m_state_test += 1;
-	return(cat("Good night dear ", test, "."));
+	return(cat("Good night dear ", test2, "."));
 
 }
 
-char *macro_2(int i, int x, int y, char *s,char *prev,char *assignation,char *name,char *args,char *body,char *__end){
+
+char *macro_2(int i, int x, int y, char *s, char *prev, char *assignation, char *name, char *args, char *body, char *__end){
 
 	char	*o;
 
@@ -174,7 +177,6 @@ int main(int ac, char **av)
 	int		x;												
 	int		y;												
 	char	*o;												
-	char	buffer[8096];									
 	char	*r;												
 	int		success;										
 	char	*macro_name;									
@@ -206,7 +208,11 @@ int main(int ac, char **av)
 	i_len = strlen(s);										
 	while (s[i])											
 	{														
-		 success = 1;x=i;																
+		 
+																
+					success = 1;
+x=i;
+																		
 					char __end[1024];*__end = 0;
 																		
 					y = 0;																	
@@ -227,15 +233,20 @@ int main(int ac, char **av)
 						y += 1;																
 					}																		
 					x += y;																	
-			if (success)															
+																					
+	if (success)																			
 	{																						
 		r = macro_0(i, x, y, s, __end);																			
 		goto success;																		
 	}
-success = 1;x=i;																
-					char test[1024];
-*test = 0;
+
+																
+																					
+					success = 1;
+x=i;
 																		
+					char test2[1024];
+*test2 = 0; 																		
 					y = 0;																	
 					while (success)															
 					{																		
@@ -254,43 +265,49 @@ success = 1;x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																			
+																					
 																							
 					y = 0;																	
 					while (success)															
 					{																		
-						if (!((test[y] = s[x + y]) && y < 5		))															
+						if (!((test2[y] = s[x + y]) && y < 5		))															
 						{																	
 							macro_name = "macro_1";											
 							success = 0;													
 							break ;															
 						}																	
-						if (	s[x + y] == "!"[0]	&& !(test[y] = 0))																
+						if (	s[x + y] == "!"[0]	&& !(test2[y] = 0))																
 						{																	
 							y += 1;															
-							printf("%s succeed macro_1 %i!\n", str(	s[x + y] == "!"[0]	&& !(test[y] = 0)), i);					
+							printf("%s succeed macro_1 %i!\n", str(	s[x + y] == "!"[0]	&& !(test2[y] = 0)), i);					
 							break ;															
 						}																	
 						y += 1;																
 					}																		
 					x += y;																	
-			if (success)															
+																					
+	if (success)																			
 	{																						
-		r = macro_1(i, x, y, s, test, __end);																			
+		r = macro_1(i, x, y, s, test2, __end);																			
 		goto success;																		
 	}
-success = 1;x=i;																
-					char prev[1024];
-*prev = 0;
-char assignation[1024];
-*assignation = 0;
-char name[1024];
-*name = 0;
-char args[1024];
-*args = 0;
-char body[1024];
-*body = 0;
+
+																
+																					
+																					
+																					
+																					
+																					
+																					
+					success = 1;
+x=i;
 																		
+					char prev[1024];
+*prev = 0; char assignation[1024];
+*assignation = 0; char name[1024];
+*name = 0; char args[1024];
+*args = 0; char body[1024];
+*body = 0; 																		
 					y = 0;																	
 					while (success)															
 					{																		
@@ -324,7 +341,7 @@ char body[1024];
 						y += 1;																
 					}																		
 					x += y;																	
-																			
+																					
 																							
 					y = 0;																	
 					while (success)															
@@ -358,7 +375,7 @@ char body[1024];
 						y += 1;																
 					}																		
 					x += y;																	
-																			
+																					
 																							
 					y = 0;																	
 					while (success)															
@@ -381,7 +398,7 @@ char body[1024];
 						y += 1;																
 					}																		
 					x += y;																	
-																			
+																					
 																							
 					y = 0;																	
 					while (success)															
@@ -401,7 +418,7 @@ char body[1024];
 						y += 1;																
 					}																		
 					x += y;																	
-																			
+																					
 																							
 					y = 0;																	
 					while (success)															
@@ -438,7 +455,7 @@ char body[1024];
 						y += 1;																
 					}																		
 					x += y;																	
-																			
+																					
 																							
 					y = 0;																	
 					while (success)															
@@ -487,7 +504,7 @@ char body[1024];
 						y += 1;																
 					}																		
 					x += y;																	
-																			
+																					
 																							
 					y = 0;																	
 					while (success)															
@@ -525,7 +542,8 @@ char body[1024];
 						y += 1;																
 					}																		
 					x += y;																	
-			if (success)															
+																					
+	if (success)																			
 	{																						
 		r = macro_2(i, x, y, s, prev, assignation, name, args, body, __end);																			
 		goto success;																		

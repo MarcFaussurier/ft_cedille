@@ -23,11 +23,11 @@ macro int f(int x)
 macro rule
 (
 	<s[x + y] == "Hello "[y]				;	y == 5;>
-		<(test[y] = s[x + y]) && y < 5		;	s[x + y] == "!"[0]	&& !(test[y] = 0);>
+		<(test2[y] = s[x + y]) && y < 5		;	s[x + y] == "!"[0]	&& !(test2[y] = 0);>
 )
 {
 	m_state_test += 1;
-	return(cat("Good night dear ", test, "."));
+	return(cat("Good night dear ", test2, "."));
 }
 
 
@@ -157,7 +157,7 @@ macro		rule
 
 
 
-int 	bar( void (^ptr)(int k) )
+int 	bar( int p, void (^ptr)(int k) )
 {
 	ptr(21);
 	return (0);
@@ -167,7 +167,7 @@ int 	bar( void (^ptr)(int k) )
 
 
 
-int 	foo( void (^ptr)(int k) )
+int 	foo( int p, char c, void (^ptr)(int k) )
 {
 	ptr(42);
 	return (0);
@@ -178,9 +178,9 @@ int main(int ac, char **av)
 	printf ("Good night dear bb. Hallo joe; Hallo ddd;");
 
 	{
-	foo(  ^(typeof(	foo(0)) i ) { ;
+	foo(10 , ^(typeof(	foo(0)) i ) { ;
 		printf("a: %i\n", i);
-	bar(  ^(typeof(	bar(0)) z ) { ;
+	bar(21, 'c' , ^(typeof(	bar(0)) z ) { ;
 		printf("b: %i\n", z);
   });
 });

@@ -24,14 +24,14 @@
 } 
 #define ERROR(X, ...) 					\
 { 										\
-	sprintf(error, X, __VA_ARGS__);		\
+	asprintf(&error, X, __VA_ARGS__);	\
 	printf("\033[1m%s:%i:%i: \033[31merror: \033[0m\033[1m%s\033[0m\n",\
 			path, line, col, error);	\
 	errors += 1; 						\
 }
 #define CMD_ERROR(X, ...)				\
 {				\
-	sprintf(error, X, __VA_ARGS__);		\
+	asprintf(&error, X, __VA_ARGS__);	\
 	printf("ç: \033[1m\033[31merror: \033[0m%s\n", error);\
 	errors += 1; 						\
 }
@@ -86,18 +86,18 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 	int		i;
 	int		z;
 	int		y;
-	char	*out = malloc(8096);
 	int		u;
 	int		p;
 	int		passed_label_count = 0;
 	char	*passed_labels[255];
+	char	*out;
 
+	out = "";
 	passed_labels[0] = "";
-	*out = 0;
 	if (mode == 2)
-		strcat(out, "i, x, y, s, ");
+		asprintf(&out, "i, x, y, s, ");
 	else if (mode == 0)
-		strcat(out, "int i, int x, int y, char *s,");
+		asprintf(&out, "int i, int x, int y, char *s, ");
 	i = 0;
 	while (pattern[i])
 	{
@@ -127,20 +127,14 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 					}
 				//	if (p == label_count)
 				//	{
-						strcat(out, "char *");
-						strcat(out, labels[label_count]);
-						strcat(out, ",");
+						asprintf(&out, "%schar *%s, ", out, labels[label_count]);
 				//		sprintf(passed_labels[passed_label_count], "%s", labels[label_count]);
 				//		passed_label_count += 1;
 				//	}
 				}
 				else if (mode == 1 && !is_def(labels[label_count]))
 				{
-					strcat(out, "char ");
-					strcat(out, labels[label_count]);
-					strcat(out, "[1024];\n*");
-					strcat(out, labels[label_count]);
-					strcat(out, " = 0;\n");
+					asprintf(&out, "%schar %s[1024];\n*%s = 0; ", out, labels[label_count], labels[label_count]);
 					label_count += 1;
 
 				}
@@ -153,8 +147,7 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 					}
 				//	if (p == label_count)
 				//	{
-						strcat(out, labels[label_count]);
-						strcat(out, ", ");
+						asprintf(&out, "%s%s, ", out, labels[label_count]);
 				//		sprintf(passed_labels[passed_label_count], "%s", labels[label_count]);
 				//		passed_label_count += 1;
 				//	}
@@ -174,16 +167,16 @@ char		*ft_generate_macro_labels(char *id, char *pattern, char *body, int mode)
 	}
 	if (!mode)
 	{
-		strcat(out, "char *__end");
+		asprintf(&out, "%schar *__end", out);
 	}
 	else if (mode == 1 && !is_def("__end"))
 	{
-			strcat(out, "char __end[1024];*__end = 0;\n");
+			asprintf(&out, "%schar __end[1024];*__end = 0;\n", out);
 			sprintf(labels[label_count], "%s","__end");
 			label_count += 1;
 	}
 	else if (mode == 2)
-		strcat(out, "__end");
+		asprintf(&out, "%s__end", out);
 	return (out);	
 }
 
@@ -192,63 +185,46 @@ char		*ft_generate_macro_function(char *id, char *pattern, char *body)
 	int		i;
 	int		z;
 	int		y;
-	char	*out = malloc(8096);
+	char	*out;
 	int		p;
 	int		u;
 
 	printf("pattern=%s - body=%s\n", pattern, body);
-	*out = 0;
-	strcat(out, "char *");
-	strcat(out, id);
-	strcat(out, "(");
-	strcat(out, ft_generate_macro_labels(id, pattern, body, 0));
-	strcat(out, ")");
-	strcat(out, "{\n");
-	strcat(out, body);
-	strcat(out, "\n}\n");
+	asprintf(&out, "char *%s(%s){\n%s\n}\n", id, ft_generate_macro_labels(id, pattern, body, 0), body);
 	return (out);	
 }
 
 char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 {
-	char	*out = malloc(8096);
-	char	name1[8096];
-	char	cond1[8096];
-	char	cond2[8096];
+	char	*out = "";
+	char	*name1 = "";
+	char	*cond1 = "";
+	char	*cond2 = "";
 	int		i = 0;
-	int		y = 0;
 	char	*aspf;
 	int		x;
 	int		last;
 
-
-	asprintf(&aspf, "success = 1;x=i;");
-	*out = 0;
-	strcat(out, aspf);
+	asprintf(&out, "success = 1;\nx=i;\n");
 	while (pattern[i])
 	{
 		if (pattern[i] == '<')
 		{
+			cond1 = "";
+			cond2 = "";
 			i += 1;
 			while (isspace(pattern[i]))
 				i += 1;
-			y = 0;
-			cond1[0] = 0;
 			while (pattern[i] != ';')
 			{	
-				cond1[y] = pattern[i];
-				y += 1;
+				asprintf(&cond1, "%s%c", cond1, pattern[i]);
 				i += 1;
 			}
-			cond1[y] = 0;
 			i += 1;
-			y = 0;
-			cond2[0] = 0;
 			while (pattern[i] != ';')
 			{
-				cond2[y] = pattern[i];
+				asprintf(&cond2, "%s%c", cond2, pattern[i]);
 				i += 1;
-				y += 1;
 			}
 			x = 0;
 			last = 1;
@@ -258,8 +234,9 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 					last = 0;
 				x += 1;
 			}
-			cond2[y] = 0;
-			asprintf(&aspf, "																\n\
+			if (!last)
+			asprintf(&out, "																\n\
+					%s																		\n\
 					%s																		\n\
 					y = 0;																	\n\
 					while (success)															\n\
@@ -279,20 +256,17 @@ char		*ft_generate_macro_parser(char *id, char *pattern, char *body)
 						y += 1;																\n\
 					}																		\n\
 					x += y;																	\n\
-			", ft_generate_macro_labels(id, pattern, body, 1), cond1, id, cond2, id, cond2);
-			strcat(out, aspf);
+			", out, ft_generate_macro_labels(id, pattern, body, 1), cond1, id, cond2, id, cond2);
 		}
 
 		i += 1;
 	}
-
-	asprintf(&aspf, "if (success)															\n\
+	asprintf(&out, "%s																		\n\
+	if (success)																			\n\
 	{																						\n\
 		r = %s(%s);																			\n\
 		goto success;																		\n\
-	}", id, ft_generate_macro_labels(id, pattern, body, 2));
-	strcat(out, aspf);
-
+	}", out, id, ft_generate_macro_labels(id, pattern, body, 2));
 	return (out);	
 }
 
@@ -364,7 +338,7 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 	int 	fty;
 	char	*compiler[TOKEN_HISTORY_MAX];
 	int		compiler_i;
-	char	buffer[255];
+	char	*buffer;
 	char	*token;
 	char	*l;
 	int		token_len;
@@ -395,23 +369,23 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 	int 	macro_pattern_end;
 	int 	macro_body_begin;
 	int 	macro_body_end;
-	int		line;
-	int		col;
-	int		errors;
+	int		errors = 0;
 	int		p;
 	int		r;
-	char	error[2048];
-	char	macros[4096];
-	char	parser[99999];
-	char	header[4096];
-	char	*body;
-	char	*pattern;
-	char	idz[64];
+	int		line = 1;
+	int		col = 1;
+	char	*error = "";
+	char	*macros = "";
+	char	*parser = "";
+	char	*header = "";
+	char	*body = "";
+	char	*pattern = "";
+	char	*idz = "";
 
 	p = 0;
 	while (p < references_count)
 	{
-		if (!strcmp(references[p], path))
+		if (!path || !path[0] || !strcmp(references[p], path))
 		{
 			ERROR("File '%s' already included !\n", path);
 			return (0);
@@ -450,6 +424,7 @@ static int	parse(const char *path, int depth, const char *output_sufix, const ch
 	macro_body_end 				= 0;
 	main_begin					= 0;
 	main_end 					= 0;
+	import_begin				= 0;
 	while ((token 				= get_next_token(fd, is_ctoken)))
 	{
 		token_len = strlen(token);
@@ -558,9 +533,9 @@ flush_import:
 					import_end = 0;
 					if (is.local_import)
 					{
-						if (parse(import_path, depth + 1, output_sufix, output_prefix))
+						if ((r = parse(import_path, depth + 1, output_sufix, output_prefix)))
 						{
-							printf("-- parse(%s) returned %i\n", buffer, r);
+							printf("-- parse(%s) returned %i\n", import_path, r);
 						}
 						else
 							goto next;
@@ -569,8 +544,8 @@ flush_import:
 					p = 0;
 					while (p < import_paths_count)
 					{
-						buffer[0] = 0;
-						sprintf(buffer, "%s/%s", import_paths[p], import_path);
+						buffer = "";
+						asprintf(&buffer, "%s/%s", import_paths[p], import_path);
 						r = parse(buffer, depth + 1, output_sufix, output_prefix);
 						if (!r)
 						{
@@ -661,31 +636,21 @@ next:
 	}
 	if (!depth)
 	{
-		macros[0] = 0;
-		parser[0] = 0;
 		p = 0;
 		while (p < macro_patterns_count)
 		{
-			idz[0] = 0;
-			sprintf(idz, "macro_%i", p);
-			strcat(macros, ft_generate_macro_function
-					(idz, macro_patterns[p][0], macro_patterns[p][1]));
-			strcat(macros, "\n");
-			strcat(parser, ft_generate_macro_parser(idz, macro_patterns[p][0], macro_patterns[p][1]));
-			strcat(parser, "\n");
+			asprintf(&idz, "macro_%i", p);
+			asprintf(&macros, "%s\n%s\n", macros, ft_generate_macro_function(idz, macro_patterns[p][0], macro_patterns[p][1]));
+			asprintf(&parser, "%s\n%s\n", parser, ft_generate_macro_parser(idz, macro_patterns[p][0], macro_patterns[p][1]));
 			p += 1;
 		}
 		p = 0;
-		
-
-		header[0] = 0;
 		while (p < compiler_i)
 		{
-			strcat(header, compiler[p]);
+			asprintf(&header, "%s%s", header, compiler[p]);
 			p += 1;
 		}
-		buffer[0] = 0;
-		sprintf(buffer, "%s/%s%s", output_prefix, path, output_sufix);
+		asprintf(&buffer, "%s/%s%s", output_prefix, path, output_sufix);
 		mkpath(buffer);
 		outfd = open(buffer, O_WRONLY | O_CREAT | O_TRUNC, 0644);
 		dprintf(outfd, "#include <fcntl.h>					\n\
@@ -754,7 +719,6 @@ int main(int ac, char **av)									\n\
 	int		x;												\n\
 	int		y;												\n\
 	char	*o;												\n\
-	char	buffer[8096];									\n\
 	char	*r;												\n\
 	int		success;										\n\
 	char	*macro_name;									\n\
@@ -823,7 +787,7 @@ int			main(int ac, char **av)
 	int			r;
 	int			q;
 	int			errors;
-	char		error[255];
+	char		*error;
 	const char	*output_prefix;
 	const char	*output_sufix;
 
