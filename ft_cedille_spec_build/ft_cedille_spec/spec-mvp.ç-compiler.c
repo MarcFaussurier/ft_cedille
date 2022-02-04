@@ -137,22 +137,17 @@ static void mkpath(const char *dir)
 		p += 1;												
 	}														
 }															
-
 char *macro_0(int i, int x, int y, char *s, char *__end){
 
 	return (cat("!! "));
 
 }
-
-
 char *macro_1(int i, int x, int y, char *s, char *test2, char *__end){
 
 	m_state_test += 1;
 	return(cat("Good night dear ", test2, "."));
 
 }
-
-
 char *macro_2(int i, int x, int y, char *s, char *prev, char *assignation, char *name, char *args, char *body, char *__end){
 
 	char	*o;
@@ -165,7 +160,6 @@ char *macro_2(int i, int x, int y, char *s, char *prev, char *assignation, char 
 	return (o);
 
 }
-
 															
 															
 int main(int ac, char **av)									
@@ -208,11 +202,9 @@ int main(int ac, char **av)
 	i_len = strlen(s);										
 	while (s[i])											
 	{														
-		 
-																
-					success = 1;
+		 success = 1;
 x=i;
-																		
+																
 					char __end[1024];*__end = 0;
 																		
 					y = 0;																	
@@ -233,18 +225,14 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																						
 	if (success)																			
 	{																						
 		r = macro_0(i, x, y, s, __end);																			
 		goto success;																		
-	}
-
-																
-																					
-					success = 1;
+	}success = 1;
 x=i;
-																		
+																
 					char test2[1024];
 *test2 = 0; 																		
 					y = 0;																	
@@ -265,7 +253,7 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																			
 																							
 					y = 0;																	
 					while (success)															
@@ -285,23 +273,14 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																						
 	if (success)																			
 	{																						
 		r = macro_1(i, x, y, s, test2, __end);																			
 		goto success;																		
-	}
-
-																
-																					
-																					
-																					
-																					
-																					
-																					
-					success = 1;
+	}success = 1;
 x=i;
-																		
+																
 					char prev[1024];
 *prev = 0; char assignation[1024];
 *assignation = 0; char name[1024];
@@ -341,7 +320,7 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																			
 																							
 					y = 0;																	
 					while (success)															
@@ -375,7 +354,7 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																			
 																							
 					y = 0;																	
 					while (success)															
@@ -398,7 +377,7 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																			
 																							
 					y = 0;																	
 					while (success)															
@@ -418,7 +397,7 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																			
 																							
 					y = 0;																	
 					while (success)															
@@ -455,7 +434,7 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																			
 																							
 					y = 0;																	
 					while (success)															
@@ -504,7 +483,7 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																			
 																							
 					y = 0;																	
 					while (success)															
@@ -542,13 +521,12 @@ x=i;
 						y += 1;																
 					}																		
 					x += y;																	
-																					
+																						
 	if (success)																			
 	{																						
 		r = macro_2(i, x, y, s, prev, assignation, name, args, body, __end);																			
 		goto success;																		
-	}
-													
+	}													
 		goto failure;										
 		success:											
 			printf("1 macro applied [id=%s i=%d x=%d on=%.*s].\n", macro_name,  i, x, x - i, s + i);
