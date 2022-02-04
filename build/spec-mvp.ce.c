@@ -176,16 +176,15 @@ int 	foo( int p, char c, void (^ptr)(int k) )
 
 int main(int ac, char **av)
 {
-	printf ("Good night dear bb. Hallo joe; Hallo ddd;");
+	printf ("Good night dear bb. Hallo joe 10101; Hallo ddd;");
 
 	{
 	bar(10, ^(typeof(	bar(10, 0)) i ) { ;
 		printf("a: %i\n", i);
 	foo(21, 'c', ^(typeof(	foo(21, 'c', 0)) z ) { ;
 		printf("b: %i\n", z);
-  });
+	  });
 });
 }
-
 	return (0);
 }

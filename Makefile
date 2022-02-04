@@ -1,30 +1,39 @@
 SRC=./ft_cedille_spec
-OUT=./ft_cedille_spec_build
-
-all:
-	cp $(SRC)/spec-mvp.ç a.txt
+OUT=./build
+SOURCES="spec-mvp.ç"
+OBJECTS=$(shell echo $(SOURCES) | tr -u '.ç' '.co')
+RUN=valgrind --leak-check=full --show-leak-kinds=all
+çc=./çc
+all:			$(OBJECTS)
+compiler:		çc
 	cc  -g 	compiler.c \
 			get_next_linev2/get_next_line.c\
 			get_next_linev2/get_next_line_utils.c\
 		-o çc
-	#TODO::RECCURSIVE MACRO DEFINITIONS
-	valgrind --leak-check=full --show-leak-kinds=all ./çc -I$(SRC) $(SRC)/spec-mvp.ç -e -compiler.c -o $(OUT)
-	cc -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.ç-compiler.c -o \
-			$(OUT)/$(SRC)/spec-mvp.ç-compiler
-#TODO: recompile the compiler using itself ? or re-compile the final file
-	valgrind $(OUT)/$(SRC)/spec-mvp.ç-compiler\
-			$(SRC)/spec-mvp.ç $(OUT)/$(SRC)/spec-mvp.c
-	cp $(OUT)/$(SRC)/spec-mvp.c a.txt
-	valgrind $(OUT)/$(SRC)/spec-mvp.ç-compiler\
-			a.txt $(OUT)/$(SRC)/spec-mvp.c
-	c -g -I$(SRC) $(OUT)/$(SRC)/spec-mvp.c -o\
-			$(OUT)/$(SRC)/spec-mvp
-	cp $(OUT)/$(SRC)/spec-mvp.c b.txt
-	((cmp a.txt b.txt) || (make J) || make)
-
 J:
-	echo "same!"
-
-#TODO: repeat using checksum
+	cc $(OUT)/$(SRC)/spec-mvp.c -I$(SRC) && ./a.out
+%.ce:			$(SRC)/%.ç	compiler
+	mkdir -p `dirname $(OUT)/$@`
+	touch .a.txt
+	cp .a.txt .b.txt
+	touch .b.txt
+	echo "oka"
+	cp -n "$<" "$(OUT)/$@" || echo ""
+	$(RUN) $(çc) -I$(SRC) $(OUT)/$@ -e -compiler.c -o ./
+	cc -g -I$(SRC) $(OUT)/$@-compiler.c -o \
+			$(OUT)/$@-compiler
+	$(RUN) $(OUT)/$@-compiler\
+			$(OUT)/$@ .a.txt
+	cp .a.txt $(OUT)/$@
+	((cmp .a.txt .b.txt) || (make $@))
+%.co:			%.ce	
+	rm .a.txt
+	rm .b.txt
+	cp $(OUT)/$< $(OUT)/$<.c 
+	cc -I$(SRC)  $(OUT)/$<.c  && ./a.out 
+	echo "yayy $@"
+	rm "$(OUT)/$<"
 clean:
 	rm -rf çc çc.dSYM
+.SUFFIXES:
+.PHONY:	compiler çc
